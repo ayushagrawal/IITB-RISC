@@ -9,7 +9,7 @@ entity adder_16bit is
 	port ( 	ra , rb : in std_logic_vector(15 downto 0);
 		rc : out std_logic_vector(15 downto 0);
 		clock : in std_logic ;		
-		z_flag : out std_logic ;
+		zero_flag : out std_logic ;
 		carry_flag : out std_logic
 		);
 end entity;
@@ -24,26 +24,29 @@ architecture formulas of adder_16bit is
 		);
    	end component ; 
 	
-	signal carry16 : std_logic_vector(4 downto 0);
-	carry16(0) <= '0';
+	signal carry16 : std_logic_vector(4 downto 0) := "00000";
+	signal sum_var : std_logic_vector(15 downto 0);
 	
 	begin
-	process(clock)
-	
-	if(clock'event and clock = '1') then			-- sampling at rising edge of the clock
+adder5 : adder_4bit port map (a4 => ra(3 downto 0), b4 => rb(3 downto 0), cin => carry16(0), cout => carry16(1),s4 => sum_var(3 downto 0)) ;
+adder6 : adder_4bit port map (a4 => ra(7 downto 4), b4 => rb(7 downto 4), cin => carry16(1), cout => carry16(2),s4 => sum_var(7 downto 4));
+adder7 : adder_4bit port map (a4 => ra(11 downto 8), b4 => rb(11 downto 8),cin => carry16(2), cout => carry16(3),s4 => sum_var(11 downto 8));
+adder8 : adder_4bit port map (a4 => ra(15 downto 12),b4 => rb(15 downto 12),cin => carry16(3),cout => carry16(4),s4 =>sum_var(15 downto 12));
 
-	adder5 : adder_4bit port map (a4 => a16(3 downto 0), b4 => b16(3 downto 0), cin => carry16(0), cout => carry16(1)) ;
-	adder6 : adder_4bit port map (a4 => a16(7 downto 4), b4 => b16(7 downto 4), cin => carry16(1), cout => carry16(2));
-	adder7 : adder_4bit port map (a4 => a16(11 downto 8), b4 => b16(11 downto 8), cin => carry16(2), cout => carry16(3));
-	adder8 : adder_4bit port map (a4 => a16(15 downto 12), b4 => b16(15 downto 12), cin => carry16(3), cout => carry16(4));
-	
-	if(carry(16) = '1') then				-- assigning the carry flag
+	process(clock)
+	begin
+
+	if(clock'event and clock = '0') then			-- sampling at rising edge of the clock
+
+	rc <= sum_var;
+
+	if (carry16(4) = '1') then				-- assigning the carry flag
 		carry_flag <= '1' ;
 	else 
 		carry_flag <= '0' ;
 	end if ;
 	
-	if(rc = 0) then						-- assigning the zero flag
+	if (sum_var = "0000000000000000") then						-- assigning the zero flag
 		zero_flag <= '1' ;
 	else
 		zero_flag <= '0' ;
@@ -51,4 +54,5 @@ architecture formulas of adder_16bit is
 
 	end if;
 
+end process;
 end formulas ;

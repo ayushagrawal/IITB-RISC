@@ -21,13 +21,12 @@ architecture formulas of adder_4bit is
 		);
    	end component ; 
 	
-	signal carry4 : std_logic_vector(3 downto 0);
-	carry4(0) <= '0';
+	signal carry4 : std_logic_vector(3 downto 0) := "0000";
 	
-	begin:
-	adder1 : adder_1bit port map (a => a4(0), b => b4(0), cin => carry4(0), cout => carry4(1)) ;
-	adder2 : adder_1bit port map (a => a4(1), b => b4(1), cin => carry4(1), cout => carry4(2));
-	adder3 : adder_1bit port map (a => a4(2), b => b4(2), cin => carry(2), cout => carry4(3));
-	adder4 : adder_1bit port map (a => a4(3), b => b4(3), cin => carry(3), cout => cout);
+	begin
+	adder1 : adder_1bit port map (a => a4(0), b => b4(0), cin => cin, cout => carry4(1), s => s4(0)) ;
+	adder2 : adder_1bit port map (a => a4(1), b => b4(1), cin => carry4(1), cout => carry4(2), s => s4(1));
+	adder3 : adder_1bit port map (a => a4(2), b => b4(2), cin => carry4(2), cout => carry4(3), s => s4(2));
+	adder4 : adder_1bit port map (a => a4(3), b => b4(3), cin => carry4(3), cout => cout, s => s4(3));
 
 end formulas ;

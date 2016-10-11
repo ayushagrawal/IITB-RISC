@@ -19,4 +19,13 @@ package adder_components is
 		);
 	end component;
 
+	component adder_16bit is
+		port ( 	ra , rb : in std_logic_vector(15 downto 0);
+			rc : out std_logic_vector(15 downto 0);
+			clock : in std_logic ;		
+			zero_flag : out std_logic ;
+			carry_flag : out std_logic
+			);
+	end component;
+
 end adder_components; 
