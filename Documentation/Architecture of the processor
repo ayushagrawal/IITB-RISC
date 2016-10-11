@@ -3,7 +3,16 @@ The architecture will primarily consist of the following:
      Each of 16 bits. 
      R0 -> R7 . 
      R7 = P.C.
+     R0 -> R6 in Register file
+     PC separate .
   2. 2 Flags.
      Carry Flag
      Zero Flag
-  3. For instruction set refer to Informatics
+  3. Memory unit
+  4. ALU unit -> (i) Adder
+                 (ii) NAND gate
+                 (iii) Subtractor for Branch on equality instruction
+  5. Instruction Register              
+  
+  
+  -- For instruction set refer to Informatics
