@@ -8,7 +8,8 @@ The architecture will primarily consist of the following:
   2. 2 Flags.
      Carry Flag
      Zero Flag
-  3. Memory unit
+  3. Memory unit -> (i) Address memory
+                    (ii) Data memory
   4. ALU unit -> (i) Adder
                  (ii) NAND gate
                  (iii) Subtractor for Branch on equality instruction
