@@ -1,0 +1,5 @@
+Basically 16 bit operand inputs are given .
+then one number is subtracted from the other and the 16 bit output is stored .
+depending on the result , the zero flag are modified .
+
+problems : (1) gives output in the next clock state
