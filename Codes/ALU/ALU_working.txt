@@ -1,0 +1,5 @@
+2 control signals for selecting operation to be performed
+
+00 - addition
+01 - subtraction
+10 - nand logic
