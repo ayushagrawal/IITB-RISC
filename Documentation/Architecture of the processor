@@ -15,5 +15,6 @@ The architecture will primarily consist of the following:
                  (iii) Subtractor for Branch on equality instruction
   5. Instruction Register              
   
+  6. Also need a priority encoder.
   
   -- For instruction set refer to Informatics
