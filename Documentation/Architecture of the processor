@@ -8,8 +8,7 @@ The architecture will primarily consist of the following:
   2. 2 Flags.
      Carry Flag
      Zero Flag
-  3. Memory unit -> (i) Address memory
-                    (ii) Data memory
+  3. Memory unit
   4. ALU unit -> (i) Adder
                  (ii) NAND gate
                  (iii) Subtractor for Branch on equality instruction
@@ -17,4 +16,5 @@ The architecture will primarily consist of the following:
   
   6. Also need a priority encoder.
   
+  7. A sign extender
   -- For instruction set refer to Informatics
