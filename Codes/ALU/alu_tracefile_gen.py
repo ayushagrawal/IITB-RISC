@@ -18,7 +18,7 @@ for i in range(10000) :
 			z_flag = 0 ;
 
 	elif k0 == 1:				#subtractor
-		k3 = k2 - k1 ;
+		k3 = k1 - k2 ;
 		if k3 < 0 :
 			k3 = k3 + pow(2,16);
 		else:
@@ -32,7 +32,7 @@ for i in range(10000) :
 			z_flag = 0 ;
 
 	else :					# nand logic
-		k3 = not(k1 and k2);
+		k3 = pow(2,16)+(~(k1 & k2));
 		k3 = k3 % pow(2,16) ;
 		if k3 == 0:
 			z_flag = 1 ;
@@ -43,8 +43,6 @@ for i in range(10000) :
 	
 		
 	string = ""
-	string = '{:02b}'.format(k0) +'0' + '{:016b}'.format(k1) + '{:016b}'.format(k2) + '{:01b}'.format(k4) + '{:01b}'.format(z_flag) + '{:016b}'.format(k3) + "\n"
+	string = '{:02b}'.format(k0) + '{:016b}'.format(k1) + '{:016b}'.format(k2) +'{:01b}'.format(z_flag) + '{:016b}'.format(k3) + "\n"
 	f.write(string);	 
-	string = ""
-	string = '{:02b}'.format(k0) +'1' + '{:016b}'.format(k1) + '{:016b}'.format(k2) + '{:01b}'.format(k4) + '{:01b}'.format(z_flag) + '{:016b}'.format(k3) + "\n"
-	f.write(string);
+	

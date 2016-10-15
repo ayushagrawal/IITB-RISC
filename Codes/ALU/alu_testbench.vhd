@@ -11,17 +11,16 @@ architecture Formulas of alu_testbench is
 	
 component alu_combined is
 	port ( 	ra , rb : in std_logic_vector(15 downto 0);
-		rc : out std_logic_vector(15 downto 0);
-		clock : in std_logic ;		
-		zero_flag : out std_logic ;
-		carry_flag : out std_logic
+		rc : out std_logic_vector(15 downto 0);	
+		control_signals : in std_logic_vector(1 downto 0);
+		zero_flag : out std_logic 
 		);
 end component;
 
 signal X,Y : std_logic_vector(15 downto 0) := x"0000" ;
 signal Z : std_logic_vector(15 downto 0) := x"0000" ;
-signal clk : std_logic := '0' ;
-signal z_flag, carry_flag : std_logic := '0' ;
+signal z_flag : std_logic := '0' ;
+signal control_signals : std_logic_vector(1 downto 0) := "00" ;
 
 function to_std_logic(x: bit) return std_logic is
      variable ret_val: std_logic;
@@ -45,14 +44,15 @@ function to_std_logic(x: bit) return std_logic is
 begin
   process 
     variable err_flag : boolean := false;
-    File INFILE: text open read_mode is "TRACEFILE_adder.txt";
-    FILE OUTFILE: text  open write_mode is "OUTPUTS_adder.txt";
+    File INFILE: text open read_mode is "TRACEFILE_alu.txt";
+    FILE OUTFILE: text  open write_mode is "OUTPUTS_alu.txt";
 
     ---------------------------------------------------
     -- edit the next two lines to customize
-    variable clock: bit ;
+   
+    variable control_vector : bit_vector(1 downto 0);
     variable input_vector: bit_vector (31 downto 0);
-    variable output_vector: bit_vector (17 downto 0);
+    variable output_vector: bit_vector (16 downto 0);
     ----------------------------------------------------
     variable INPUT_LINE: Line;
     variable OUTPUT_LINE: Line;
@@ -63,7 +63,7 @@ begin
           LINE_COUNT := LINE_COUNT + 1;
 	
 	  readLine (INFILE, INPUT_LINE);
-	  read (INPUT_LINE, clock);
+	  read (INPUT_LINE, control_vector);
           read (INPUT_LINE, input_vector);
 	  read (INPUT_LINE, output_vector);
 
@@ -74,7 +74,8 @@ begin
           for j in 0 to 15 loop
 	  Y(j) <= to_std_logic(input_vector(j)); 
 	  end loop;
-	  clk <= to_std_logic(clock);	
+	  control_signals(0) <= to_std_logic(control_vector(0));
+	  control_signals(1) <= to_std_logic(control_vector(1));	
           --------------------------------------
 	  -- let circuit respond -----------
           wait for 50 us;
@@ -89,12 +90,7 @@ begin
           end if ;
     	end loop;
 		
-	if (carry_flag /= to_std_logic(output_vector(17))) then
-	     write(OUTPUT_LINE,to_string("ERROR: in carry_flag, line "));
-             write(OUTPUT_LINE, LINE_COUNT);
-             writeline(OUTFILE, OUTPUT_LINE);
-             err_flag := true;
-	elsif (z_flag /= to_std_logic(output_vector(16))) then
+	if (z_flag /= to_std_logic(output_vector(16))) then
 	     write(OUTPUT_LINE,to_string("ERROR: in carry_flag, line "));
              write(OUTPUT_LINE, LINE_COUNT);
              writeline(OUTFILE, OUTPUT_LINE);
@@ -114,9 +110,9 @@ dut: alu_combined
   port map ( 	ra => X,
            	rb => Y,
            	rc => Z,
-	   	clock => clk,
-	   	zero_flag => z_flag,
-	   	carry_flag => carry_flag );
+	   	control_signals => control_signals,
+	   	zero_flag => z_flag
+		);
 
 end Formulas ;
 
