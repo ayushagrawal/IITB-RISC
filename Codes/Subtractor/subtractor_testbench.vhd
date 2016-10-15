@@ -11,15 +11,13 @@ architecture Formulas of subtractor_testbench is
 	
 component subtractor_16bit is
 	port ( 	ra , rb : in std_logic_vector(15 downto 0);
-		rc : out std_logic_vector(15 downto 0);
-		clock : in std_logic ;		
+		rc : out std_logic_vector(15 downto 0);	
 		zero_flag : out std_logic 
 		);
 end component;
 
 signal X,Y : std_logic_vector(15 downto 0) := x"0000" ;
 signal Z : std_logic_vector(15 downto 0) := x"0000" ;
-signal clk : std_logic := '0' ;
 signal z_flag : std_logic := '0' ;
 
 function to_std_logic(x: bit) return std_logic is
@@ -49,7 +47,6 @@ begin
 
     ---------------------------------------------------
     -- edit the next two lines to customize
-    variable clock: bit ;
     variable input_vector: bit_vector (31 downto 0);
     variable output_vector: bit_vector (16 downto 0);
     ----------------------------------------------------
@@ -62,7 +59,6 @@ begin
           LINE_COUNT := LINE_COUNT + 1;
 	
 	  readLine (INFILE, INPUT_LINE);
-	  read (INPUT_LINE, clock);
           read (INPUT_LINE, input_vector);
 	  read (INPUT_LINE, output_vector);
 
@@ -72,11 +68,10 @@ begin
 	  end loop;
           for j in 0 to 15 loop
 	  Y(j) <= to_std_logic(input_vector(j)); 
-	  end loop;
-	  clk <= to_std_logic(clock);	
+	  end loop;	
           --------------------------------------
 	  -- let circuit respond -----------
-          wait for 50 us;
+          wait for 50 ns;
 	
 	-- check outputs.
 	for I in 0 to 15 loop
@@ -108,7 +103,6 @@ dut: subtractor_16bit
   port map ( 	ra => X,
            	rb => Y,
            	rc => Z,
-	   	clock => clk,
 	   	zero_flag => z_flag );
 
 end Formulas ;
