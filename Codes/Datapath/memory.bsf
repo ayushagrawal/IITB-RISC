@@ -1,0 +1,73 @@
+/*
+WARNING: Do NOT edit the input and output ports in this file in a text
+editor if you plan to continue editing the block that represents it in
+the Block Editor! File corruption is VERY likely to occur.
+*/
+/*
+Copyright (C) 1991-2016 Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus Prime License Agreement,
+the Altera MegaCore Function License Agreement, or other 
+applicable license agreement, including, without limitation, 
+that your use is for the sole purpose of programming logic 
+devices manufactured by Altera and sold by Altera or its 
+authorized distributors.  Please refer to the applicable 
+agreement for further details.
+*/
+(header "symbol" (version "1.2"))
+(symbol
+	(rect 0 0 216 120)
+	(text "memory" (rect 73 0 150 18)(font "Arial" (font_size 10)))
+	(text "inst" (rect 8 102 41 116)(font "Arial" ))
+	(port
+		(pt 0 32)
+		(input)
+		(text "data[15..0]" (rect 0 0 103 16)(font "Arial" (font_size 8)))
+		(text "data[15..0]" (rect 4 14 76 31)(font "Arial" (font_size 8)))
+		(line (pt 0 32)(pt 104 32)(line_width 3))
+	)
+	(port
+		(pt 0 48)
+		(input)
+		(text "we" (rect 0 0 18 16)(font "Arial" (font_size 8)))
+		(text "we" (rect 4 30 22 47)(font "Arial" (font_size 8)))
+		(line (pt 0 48)(pt 104 48))
+	)
+	(port
+		(pt 0 64)
+		(input)
+		(text "address[3..0]" (rect 0 0 122 16)(font "Arial" (font_size 8)))
+		(text "address[3..0]" (rect 4 46 93 63)(font "Arial" (font_size 8)))
+		(line (pt 0 64)(pt 104 64)(line_width 3))
+	)
+	(port
+		(pt 216 32)
+		(output)
+		(text "q[15..0]" (rect 0 0 75 16)(font "Arial" (font_size 8)))
+		(text "q[15..0]" (rect 161 14 211 31)(font "Arial" (font_size 8)))
+		(line (pt 216 32)(pt 136 32)(line_width 3))
+	)
+	(drawing
+		(text "16 bits" (rect 105 32 201 177)(font "Arial" )(vertical))
+		(text "16 words" (rect 120 16 223 191)(font "Arial" )(vertical))
+		(line (pt 104 24)(pt 136 24))
+		(line (pt 136 24)(pt 136 96))
+		(line (pt 136 96)(pt 104 96))
+		(line (pt 104 96)(pt 104 24))
+		(line (pt 118 58)(pt 123 63))
+		(line (pt 118 62)(pt 123 57))
+		(line (pt 0 0)(pt 217 0))
+		(line (pt 217 0)(pt 217 122))
+		(line (pt 0 122)(pt 217 122))
+		(line (pt 0 0)(pt 0 122))
+		(line (pt 0 0)(pt 0 0))
+		(line (pt 0 0)(pt 0 0))
+		(line (pt 0 0)(pt 0 0))
+		(line (pt 0 0)(pt 0 0))
+	)
+)

@@ -12,26 +12,29 @@ end entity;
 
 architecture Behave of decoder_3to8 is
 	
-begin 
-process(input)
 begin
-	if (input = "000") then
-		output <= "11111110" ;
-	elsif (input = "001") then
-		output <= "11111101" ;
-	elsif (input = "010") then
-		output <= "11111011" ;
-	elsif (input = "011") then
-		output <= "11110111" ;
-	elsif (input = "100") then
-		output <= "11101111" ;
-	elsif (input = "101") then
-		output <= "11011111" ;
-	elsif (input = "110") then
-		output <= "10111111" ;
-	elsif (input = "111") then
-		output <= "01111111" ;
-	end if ;
-			
+	process(input)
+		variable inp: std_logic_vector(7 downto 0);
+		begin
+			-- Default Value
+			inp := "00000001";
+			if(input = "000") then
+				inp := "00000001";
+			elsif(input = "001") then
+				inp := "00000010";
+			elsif(input = "010") then
+				inp := "00000100";
+			elsif(input = "011") then
+				inp := "00001000";
+			elsif(input = "100") then
+				inp := "00010000";
+			elsif(input = "101") then
+				inp := "00100000";
+			elsif(input = "110") then
+				inp := "01000000";
+			else
+				inp := "10000000";
+			end if;
+			output <= not(inp);
 end process;
 end Behave;

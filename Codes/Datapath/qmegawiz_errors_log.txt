@@ -1,0 +1,13 @@
+
+
+C:/Users/Ayush Agrawal/Desktop/IITB-RISC/Codes/Datapath/memory.v
+
+Oct 16 10PM:07:39>: The following design file, which has identical name but a different extension 
+from the specified variation file, already exists in the working directory:
+
+memory.vhd
+
+This may create a conflict of design files and/or lead to undesirable side
+effects.
+
+Is it OK to continue file generation?

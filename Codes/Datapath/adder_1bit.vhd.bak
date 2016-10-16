@@ -12,8 +12,11 @@ entity adder_1bit is
 	); 			
 end entity;
 
-architecture Formulas of adder_1bit is   
+architecture Formulas of adder_1bit is
+   signal carry,W : std_logic ;
+   
 begin
-   s <= a xor b xor cin;
-   cout <= (a and(b or  cin)) or (b and cin) ;
+   W <= (a and (not b)) or ((not a) and b) ;
+   s <= (W and (not cin)) or ((not W) and cin) ;
+   cout <= (a and b) or (a and cin) or (b and cin) ;
 end Formulas;

@@ -33,7 +33,7 @@ adder6 : adder_4bit port map (a4 => ra(7 downto 4), b4 => rb(7 downto 4), cin =>
 adder7 : adder_4bit port map (a4 => ra(11 downto 8), b4 => rb(11 downto 8),cin => carry16(2), cout => carry16(3),s4 => sum_var(11 downto 8));
 adder8 : adder_4bit port map (a4 => ra(15 downto 12),b4 => rb(15 downto 12),cin => carry16(3),cout => carry16(4),s4 =>sum_var(15 downto 12));
 
-	process(sum_var,carry16)
+	process(sum_var)
 	begin
 	rc <= sum_var;
 

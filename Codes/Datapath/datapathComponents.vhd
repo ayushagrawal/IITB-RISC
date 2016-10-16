@@ -173,7 +173,7 @@ package datapathComponents is
 		
 	
 	component sign_extender_9bit is 
-		port ( input : in std_logic_vector(9 downto 0);
+		port ( input : in std_logic_vector(8 downto 0);
 		       output : out std_logic_vector(15 downto 0) 
 	     	);
 	end component;
