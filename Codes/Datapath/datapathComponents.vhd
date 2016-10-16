@@ -5,6 +5,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package datapathComponents is
+	component memory IS
+	PORT
+	(
+		address		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+		data		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+		we		: IN STD_LOGIC  := '1';
+		q		: OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
+	);
+	END component;
+		
 	component LH is 
 	port ( input : in std_logic_vector(8 downto 0);
 	       output : out std_logic_vector(15 downto 0) 
