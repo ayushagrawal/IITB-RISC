@@ -63,6 +63,14 @@ package datapathComponents is
 			  output: out std_logic_vector(6 downto 0));
 	end component;
 	
+	component register16 is
+		port(dataIn: in std_logic_vector(15 downto 0);
+			  enable: in std_logic;
+			  dataOut: out std_logic_vector(15 downto 0);
+			  clock: in std_logic;
+			  reset: in std_logic);
+	end component;
+	
 	component decoder_3to8 is 
 		port( input : in std_logic_vector(2 downto 0);
 		 	 output : out std_logic_vector(7 downto 0)
