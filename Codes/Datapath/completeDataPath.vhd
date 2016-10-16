@@ -1,0 +1,127 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+library work;
+use work.dataPathComponents.all;
+
+entity completeDataPath is
+	port(pc_reg_crtl: in std_logic;
+		  address_crtl: in std_logic;
+		  we_crtl: in std_logic;
+		  ir_crtl: in std_logic;
+		  mem_data_crtl: in std_logic;
+		  reg_data_crtl: in std_logic;
+		  reg_sel_crtl: in std_logic;
+		  regWrite: in std_logic;
+		  reg_A_crtl: in std_logic;
+		  reg_B_crtl: in std_logic;
+		  alu_a_sel: in std_logic;
+		  alu_b_sel: in std_logic;
+		  alu_reg_crtl: in std_logic;
+		  pc_source_crtl: in std_logic;
+		  ir_toFSM: out std_logic_vector(3 downto 0);
+		  clock: in std_logic;
+		  carry: out std_logic;										-- To the FSM
+		  zero: out std_logic);										-- To the FSM
+end entity;
+
+architecture dp of completeDataPath is
+	signal pc_out : std_logic_vector(15 downto 0);			-- Output of the PC
+	signal mem_data: std_logic_vector(15 downto 0);			-- Input to memory
+	signal mem_address: std_logic_vector(15 downto 0);		-- Address to the memory
+	signal mem_out: std_logic_vector(15 downto 0); 			-- Output data from the memory
+	signal ir_out: std_logic_vector(15 downto 0);			-- Intruction Register Out
+	signal mem_data_out: std_logic_vector(15 downto 0);	-- Memory Data Register Out
+	signal alu_reg_out: std_logic_vector(15 downto 0);		-- ALU Register Out
+	signal lh_out: std_logic_vector(15 downto 0);			-- Load Higher Out
+	signal priority_en_out: std_logic_vector(2 downto 0);	-- Priority Encoder Out
+	signal data_in_sel: std_logic_vector(2 downto 0);		-- Register Bank Data in Select
+	signal dataIn_rf: std_logic_vector(15 downto 0);		-- Register Bank Data in
+	signal mem_in: std_logic_vector(15 downto 0);			-- Memory Data IN
+begin
+	
+	PC : register16 port map(dataIn => pcIn,
+									 enable => pc_reg_crtl,
+									 dataOut => pc_out ,
+									 clock => clock,
+									 reset => reset);
+	adress_mux : mux_2to1_16bit port map(in0 => alu_reg_out,
+													 in1 => pc_out, 
+													 sel => address_crtl, 
+													 out1 => mem_address);
+	RAM : memory port map(address => mem_address,
+								 data => reg_A_out, 
+								 we => we_crtl, 
+								 q => mem_out);
+	IR : register16 port map(dataIn => mem_out, 
+									 enable => ir_crtl, 
+									 dataOut => ir_out ,
+									 clock => clock,
+									 reset => reset);
+	MEM_data : register16 port map(dataIn => mem_out, 
+											 enable => pc_data_crtl,
+											 dataOut => mem_data_out,
+											 clock => clock,
+											 reset => reset);
+	rf_data_mux: mux_3to1_16bit port map(in_00 => mem_data_out,
+													 in_01 => alu_reg_out,
+													 in_10 => lh_out,
+													 control_signals => reg_data_crtl, 
+													 out1 => dataIn_rf);
+	rf_in_sel: mux_4to1_3bit port map(in_00 => priority_en_out,
+												 in_01 => ir_out(8 downto 6),
+												 in_10 => ir_out(11 downto 9), 
+												 in_11 => ir_out(5 downto 3),
+												 control_signals => reg_sel_crtl,
+												 out1 => data_in_sel);
+	RF: registerBank port map(dataOut_A => reg_A_in,
+									  dataOut_B => reg_B_in,
+									  clock_rb  => clock,
+									  regSel_A  => ir_out(11 downto 9),
+									  regSel_B  => ir_out(8 downto 6),
+									  dataIn	   => dataIn_rf,
+									  dataInsel => reg_sel_crtl,
+									  reset	   => reset,
+									  regWrite  => regWrite);
+	Register_A : register16 port map(dataIn => reg_A_in, 
+									 enable => reg_A_crtl, 
+									 dataOut => reg_A_out ,
+									 clock => clock,
+									 reset => reset);
+	Register_B : register16 port map(dataIn => reg_B_in, 
+									 enable => reg_B_crtl, 
+									 dataOut => reg_B_out ,
+									 clock => clock,
+									 reset => reset);
+	alu_A_mux: mux_3to1_16bit port map(in_00 => reg_A_out,
+													 in_01 => se6to16_out,
+													 in_10 => se9to16_out,
+													 control_signals => alu_a_sel, 
+													 out1 => alu_a_in);
+	alu_B_mux : mux_2to1_16bit port map(in0 => pc_out,
+													 in1 => reg_B_out, 
+													 sel => alu_b_sel, 
+													 out1 => alu_b_in);
+	--ALU : ;
+	ALU_register: register16 port map(dataIn => alu_out, 
+									 enable => alu_reg_crtl, 
+									 dataOut => alu_reg_out ,
+									 clock => clock,
+									 reset => reset);
+	pc_mux_1 : mux_2to1_16bit port map(in0 => alu_out,
+													 in1 => alu_reg_out, 
+													 sel => pc_source_crtl, 
+													 out1 => pc_mux_2_in);
+	pc_mux_2 : mux_2to1_16bit port map(in0 => pc_mux_2_in,
+													 in1 => dataIn_rf, 
+													 sel => and_out, 
+													 out1 => pcIn);
+	and3In : and_gate_3input port map(input => data_in_sel,
+												 output => and_out);
+	se9to16 : sign_extender_9bit port map(input => ir_out(8 downto 0),
+													  output => se9to16_out);
+	se6to16 : sign_extender_6bit port map(input => ir_out(5 downto 0),
+													  output => se6to16_out);
+	load_higher : LH port map(input => ir_out(8 downto 0),
+									  output => lh_out);
+end;
