@@ -5,27 +5,30 @@ library work;
 use work.dataPathComponents.all;
 
 entity completeDataPath is
-	port(pc_reg_crtl: in std_logic;
-		  address_crtl: in std_logic;
-		  we_crtl: in std_logic;
-		  ir_crtl: in std_logic;
-		  mem_data_crtl: in std_logic;
-		  reg_data_crtl: in std_logic;
-		  reg_sel_crtl: in std_logic;
-		  regWrite: in std_logic;
+	port(pc_reg_crtl: 	in std_logic;
+		  address_crtl: 	in std_logic;
+		  we_crtl: 			in std_logic;
+		  ir_crtl: 			in std_logic;
+		  mem_data_crtl: 	in std_logic;
+		  reg_data_crtl: 	in std_logic;
+		  reg_sel_crtl: 	in std_logic;
+		  regWrite: 		in std_logic;
 		  reg_A_crtl: in std_logic;
 		  reg_B_crtl: in std_logic;
 		  alu_a_sel: in std_logic;
 		  alu_b_sel: in std_logic;
 		  alu_reg_crtl: in std_logic;
 		  pc_source_crtl: in std_logic;
+		  reset: in std_logic;
 		  ir_toFSM: out std_logic_vector(3 downto 0);
 		  clock: in std_logic;
 		  carry: out std_logic;										-- To the FSM
-		  zero: out std_logic);										-- To the FSM
+		  zero: out std_logic;										-- To the FSM
+		  error_PE: out std_logic);								-- To the FSM -> error signal from priority encoder
 end entity;
 
 architecture dp of completeDataPath is
+	signal pcIn : std_logic_vector(15 downto 0);				-- Input to the PC register
 	signal pc_out : std_logic_vector(15 downto 0);			-- Output of the PC
 	signal mem_data: std_logic_vector(15 downto 0);			-- Input to memory
 	signal mem_address: std_logic_vector(15 downto 0);		-- Address to the memory
@@ -124,4 +127,19 @@ begin
 													  output => se6to16_out);
 	load_higher : LH port map(input => ir_out(8 downto 0),
 									  output => lh_out);
+	priority_enc : priority_encoder port map(input => pe_reg_out,
+														  output => priority_en_out,
+														  out_N => error_PE);
+	decode_PE : decoder_3to8 port map(input => priority_en_out,
+												 output => decode_pe_out);
+	PE_register : register8 port map(dataIn => pe_mux_out, 
+									 enable => pe_crtl, 
+									 dataOut => pe_reg_out,
+									 clock => clock,
+									 reset => reset);
+	PE_mux : mux_2to1_8bit port map(in0 => pc_out,
+													 in1 => ir_out(7 downto 0), 
+													 sel => pe_mux_crtl, 
+													 out1 => pe_mux_out);
+	pe_andOut <= (pe_reg_out) and (pe_mux_out);
 end;
