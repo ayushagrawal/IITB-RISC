@@ -71,84 +71,79 @@ package datapathComponents is
 			  reset: in std_logic);
 	end component;
 	
-	component decoder is
-		port(input: in std_logic_vector(2 downto 0);
-			  output: out std_logic_vector(6 downto 0));
-	end component;
-	
-	entity decoder_3to8 is 
-		port( input : std_logic_vector(2 downto 0);
-		 	 output : std_logic_vector(7 downto 0)
+	component decoder_3to8 is 
+		port( input : in std_logic_vector(2 downto 0);
+		 	 output : out std_logic_vector(7 downto 0)
 		  	);
-	end entity;
+	end component;
 
-	entity muxALU is 
+	component muxALU is 
 		port( in1,in2,in3 : in std_logic_vector(15 downto 0); 
 	      		control_signals : in std_logic_vector(1 downto 0); 
 	      		out1: out std_logic_vector(15 downto 0));
-	end entity;
+	end component;
 		
-	entity mux_1bit is 
+	component mux_1bit is 
 		port( in1,in2,in3 : in std_logic; 
 	      	control_signals : in std_logic_vector(1 downto 0); 
 	      	out1: out std_logic);
-	end entity;
+	end component;
 		
-	entity mux_2to1_16bit is 
+	component mux_2to1_16bit is 
 		port( in0,in1 : in std_logic_vector(15 downto 0); 
 		      sel : in std_logic; 
 	      	out1: out std_logic_vector(15 downto 0));
-	end entity;
+	end component;
 		
-	entity mux_2to1_8bit is 
+	component mux_2to1_8bit is 
 		port( in0,in1 : in std_logic_vector(7 downto 0); 
 	      	sel : in std_logic; 
 	      	out1: out std_logic_vector(7 downto 0));
-	end entity;
+	end component;
 		
-	entity mux_3to1_16bit is 
+	component mux_3to1_16bit is 
 		port( in_00,in_01,in_10 : in std_logic_vector(15 downto 0); 
 	      		control_signals : in std_logic_vector(1 downto 0); 
 	      		out1: out std_logic_vector(15 downto 0));
-	end entity;
+	end component;
 	
-	entity mux_4to1_3bit is 
+	component mux_4to1_3bit is 
 		port( in_00,in_11,in_01,in_10 : in std_logic_vector(2 downto 0); 
 		      control_signals : in std_logic_vector(1 downto 0); 
 	      		out1: out std_logic_vector(2 downto 0));
-	end entity;
+	end component;
 		
-	entity nand_logic is 
+	component nand_logic is 
 		port ( ra, rb : in std_logic_vector(15 downto 0);
 	       		rc : out std_logic_vector(15 downto 0);
 	       		zero_flag : out std_logic 
 	    	 );
-	end entity;
+	end component;
 		
-	entity priority_encoder is
+	component priority_encoder is
 	port ( 
 		input : in std_logic_vector(7 downto 0) ;
 		output: out std_logic_vector(2 downto 0);
 		out_N : out std_logic) ;
-	end entity ;
+	end component ;
 	
-	entity register16 is
+	component register16 is
 		port(	dataIn: in std_logic_vector(15 downto 0);
 			  enable: in std_logic;
 			  dataOut: out std_logic_vector(15 downto 0);
 			  clock: in std_logic;
 			  reset: in std_logic);
-	end entity;
+	end component;
 
-	entity register8 is
+	component register8 is
 		port(dataIn: in std_logic_vector(7 downto 0);
 			  enable: in std_logic;
 			  dataOut: out std_logic_vector(7 downto 0);
 			  clock: in std_logic;
 			  reset: in std_logic);
-	end entity;
+	end component;
 	
-	entity registerBank is
+	component registerBank is
 	port(dataOut_A: out std_logic_vector(15 downto 0);
 		  dataOut_B: out std_logic_vector(15 downto 0);
 		  clock_rb : in std_logic;
@@ -158,33 +153,33 @@ package datapathComponents is
 		  dataInsel: in std_logic_vector(2 downto 0);
 		  reset	  : in std_logic;
 		  regWrite : in std_logic);
-	end entity;
+	end component;
 	
-	entity register_1bit is
+	component register_1bit is
 		port(     dataIn: in std_logic;
 			  enable: in std_logic;
 			  dataOut: out std_logic;
 			  clock: in std_logic;
 			  reset: in std_logic);
-	end entity;
+	end component;
 		
-	entity sign_extender_6bit is 
+	component sign_extender_6bit is 
 	port ( input : in std_logic_vector(5 downto 0);
 	       output : out std_logic_vector(15 downto 0) 
 	     );
-	end entity;
+	end component;
 		
 	
-	entity sign_extender_9bit is 
+	component sign_extender_9bit is 
 		port ( input : in std_logic_vector(9 downto 0);
 		       output : out std_logic_vector(15 downto 0) 
 	     	);
-	end entity;
+	end component;
 		
-	entity subtractor_16bit is
+	component subtractor_16bit is
 	port ( 	ra , rb : in std_logic_vector(15 downto 0);
 		rc : out std_logic_vector(15 downto 0);		
 		zero_flag : out std_logic 
 		);
-	end entity;
+	end component;
 end datapathComponents;
