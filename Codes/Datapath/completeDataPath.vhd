@@ -16,7 +16,7 @@ entity completeDataPath is
 		  reg_A_crtl	: in std_logic;
 		  reg_B_crtl	: in std_logic;
 		  alu_b_sel	: in std_logic_vector(1 downto 0);
-		  alu_a_sel	: in std_logic;
+		  alu_a_sel	: in std_logic_vector(1 downto 0);
 		  alu_reg_crtl	: in std_logic;
 		  alu_crtl	: in std_logic_vector(1 downto 0);
 		  enable_carry	: in std_logic;
@@ -116,15 +116,16 @@ begin
 									 dataOut => reg_B_out ,
 									 clock => clock,
 									 reset => reset);
-	alu_B_mux: mux_3to1_16bit port map(in_00 => reg_B_out,
-													 in_01 => se6to16_out,
-													 in_10 => se9to16_out,
-													 control_signals => alu_b_sel, 
-													 out1 => alu_a_in);
-	alu_A_mux : mux_2to1_16bit port map(in0 => pc_out,
-													 in1 => reg_A_out, 
-													 sel => alu_a_sel, 
-													 out1 => alu_b_in);
+	alu_B_mux: mux_3to1_16bit port map(	in_00 => reg_B_out,
+						in_01 => se6to16_out,
+						in_10 => se9to16_out,
+						control_signals => alu_b_sel, 
+						out1 => alu_b_in);
+	alu_A_mux : mux_3to1_16bit port map(	in_00 => pc_out,
+					  	in_01 => reg_A_out,
+					    	in_01 => se6to16_out,
+						sel => alu_a_sel, 
+						out1 => alu_a_in);
 	ALU : alu_combined port map (	ra => alu_a_in,
 											rb => alu_b_in, 
 											rc => alu_out,
