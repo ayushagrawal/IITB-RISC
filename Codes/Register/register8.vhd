@@ -4,7 +4,7 @@ use ieee.std_logic_1164.all;
 library work;
 use work.components_RB.all;
 
-entity register16 is
+entity register8 is
 		port(dataIn: in std_logic_vector(7 downto 0);
 			  enable: in std_logic;
 			  dataOut: out std_logic_vector(7 downto 0);
