@@ -116,13 +116,13 @@ begin
 									 dataOut => reg_B_out ,
 									 clock => clock,
 									 reset => reset);
-	alu_A_mux: mux_3to1_16bit port map(in_00 => reg_A_out,
+	alu_B_mux: mux_3to1_16bit port map(in_00 => reg_B_out,
 													 in_01 => se6to16_out,
 													 in_10 => se9to16_out,
 													 control_signals => alu_a_sel, 
 													 out1 => alu_a_in);
-	alu_B_mux : mux_2to1_16bit port map(in0 => pc_out,
-													 in1 => reg_B_out, 
+	alu_A_mux : mux_2to1_16bit port map(in0 => pc_out,
+													 in1 => reg_A_out, 
 													 sel => alu_b_sel, 
 													 out1 => alu_b_in);
 	ALU : alu_combined port map (	ra => alu_a_in,
