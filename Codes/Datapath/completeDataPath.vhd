@@ -5,61 +5,61 @@ library work;
 use work.dataPathComponents.all;
 
 entity completeDataPath is
-	port(pc_reg_crtl: 	in std_logic;
-		  address_crtl: 	in std_logic;
-		  we_crtl: 			in std_logic;
-		  ir_crtl: 			in std_logic;
-		  mem_data_crtl: 	in std_logic;
-		  reg_data_crtl: 	in std_logic_vector(1 downto 0);
-		  reg_sel_crtl: 	in std_logic_vector(1 downto 0);
-		  regWrite: 		in std_logic;
-		  reg_A_crtl: in std_logic;
-		  reg_B_crtl: in std_logic;
-		  alu_a_sel: in std_logic_vector(1 downto 0);
-		  alu_b_sel: in std_logic;
-		  alu_reg_crtl: in std_logic;
-		  alu_crtl: in std_logic_vector(1 downto 0);
-		  enable_carry: in std_logic;
-		  enable_zero: in std_logic;
+	port(	  pc_reg_crtl	: in std_logic;
+		  address_crtl	: in std_logic;
+		  we_crtl	: in std_logic;
+		  ir_crtl	: in std_logic;
+		  mem_data_crtl	: in std_logic;
+		  reg_data_crtl	: in std_logic_vector(1 downto 0);
+		  reg_sel_crtl	: in std_logic_vector(1 downto 0);
+		  regWrite	: in std_logic;
+		  reg_A_crtl	: in std_logic;
+		  reg_B_crtl	: in std_logic;
+		  alu_a_sel	: in std_logic_vector(1 downto 0);
+		  alu_b_sel	: in std_logic;
+		  alu_reg_crtl	: in std_logic;
+		  alu_crtl	: in std_logic_vector(1 downto 0);
+		  enable_carry	: in std_logic;
+		  enable_zero	: in std_logic;
 		  pc_source_crtl: in std_logic;
-		  pe_crtl : in std_logic;
-		  pe_mux_crtl : in std_logic;
-		  reset: in std_logic;
-		  ir_toFSM: out std_logic_vector(3 downto 0);
-		  clock: in std_logic;
-		  carry: out std_logic;										-- To the FSM
-		  zero: out std_logic;										-- To the FSM
-		  error_PE: out std_logic);								-- To the FSM -> error signal from priority encoder
+		  pe_crtl 	: in std_logic;
+		  pe_mux_crtl 	: in std_logic;
+		  reset		: in std_logic;
+		  ir_toFSM	: out std_logic_vector(3 downto 0);
+		  clock		: in std_logic;
+		  carry		: out std_logic;										-- To the FSM
+		  zero		: out std_logic;										-- To the FSM
+		  error_PE	: out std_logic);								-- To the FSM -> error signal from priority encoder
 end entity;
 
 architecture dp of completeDataPath is
-	signal pcIn : std_logic_vector(15 downto 0);				-- Input to the PC register
-	signal pc_out : std_logic_vector(15 downto 0);			-- Output of the PC
-	signal mem_data: std_logic_vector(15 downto 0);			-- Input to memory
+	signal pcIn 	: std_logic_vector(15 downto 0);		-- Input to the PC register
+	signal pc_out 	: std_logic_vector(15 downto 0);		-- Output of the PC
+	signal mem_data	: std_logic_vector(15 downto 0);		-- Input to memory
 	signal mem_address: std_logic_vector(15 downto 0);		-- Address to the memory
-	signal mem_out: std_logic_vector(15 downto 0); 			-- Output data from the memory
-	signal ir_out: std_logic_vector(15 downto 0);			-- Intruction Register Out
-	signal mem_data_out: std_logic_vector(15 downto 0);	-- Memory Data Register Out
+	signal mem_out	: std_logic_vector(15 downto 0); 		-- Output data from the memory
+	signal ir_out	: std_logic_vector(15 downto 0);		-- Intruction Register Out
+	signal mem_data_out: std_logic_vector(15 downto 0);		-- Memory Data Register Out
 	signal alu_reg_out: std_logic_vector(15 downto 0);		-- ALU Register Out
-	signal lh_out: std_logic_vector(15 downto 0);			-- Load Higher Out
-	signal priority_en_out: std_logic_vector(2 downto 0);	-- Priority Encoder Out
+	signal lh_out	: std_logic_vector(15 downto 0);		-- Load Higher Out
+	signal priority_en_out: std_logic_vector(2 downto 0);		-- Priority Encoder Out
 	signal data_in_sel: std_logic_vector(2 downto 0);		-- Register Bank Data in Select
 	signal dataIn_rf: std_logic_vector(15 downto 0);		-- Register Bank Data in
-	signal mem_in: std_logic_vector(15 downto 0);			-- Memory Data IN
-	signal reg_A_out : std_logic_vector(15 downto 0);		-- Output of Register A
-	signal reg_B_out : std_logic_vector(15 downto 0);		-- Output of Register B
+	signal mem_in	: std_logic_vector(15 downto 0);		-- Memory Data IN
+	signal reg_A_out: std_logic_vector(15 downto 0);		-- Output of Register A
+	signal reg_B_out: std_logic_vector(15 downto 0);		-- Output of Register B
 	signal reg_A_in : std_logic_vector(15 downto 0);		-- Input of Register A
 	signal reg_B_in : std_logic_vector(15 downto 0);		-- Input of Register B
-	signal se6to16_out : std_logic_vector(15 downto 0);	-- Sign Extender 6 to 16
-	signal se9to16_out : std_logic_vector(15 downto 0);	-- Sign Extender 9 to 16
+	signal se6to16_out : std_logic_vector(15 downto 0);		-- Sign Extender 6 to 16
+	signal se9to16_out : std_logic_vector(15 downto 0);		-- Sign Extender 9 to 16
 	signal alu_a_in : std_logic_vector(15 downto 0);		-- Input to ALU A port
 	signal alu_b_in : std_logic_vector(15 downto 0);		-- Input to ALU B port
-	signal alu_out : std_logic_vector(15 downto 0);			-- Output of ALU 
-	signal pc_mux_2_in : std_logic_vector(15 downto 0);	-- Input to PC mux
-	--signal and_out: std_logic;										-- PC mux 2 control bit
+	signal alu_out 	: std_logic_vector(15 downto 0);		-- Output of ALU 
+	signal pc_mux_2_in : std_logic_vector(15 downto 0);		-- Input to PC mux
+	--signal and_out: std_logic;					-- PC mux 2 control bit
 	signal pe_reg_out : std_logic_vector(7 downto 0);		-- Priority Encoder Register Output
-	signal decode_pe_out : std_logic_vector(7 downto 0);	-- Decoder PE Output
-	signal pe_mux_out : std_logic_vector(7 downto 0);		-- 
+	signal decode_pe_out : std_logic_vector(7 downto 0);		-- Decoder PE Output
+	signal pe_mux_out : std_logic_vector(7 downto 0);	 
 	signal pe_andOut : std_logic_vector(7 downto 0);
 begin
 	
