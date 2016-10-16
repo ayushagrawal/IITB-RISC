@@ -10,15 +10,15 @@ entity completeDataPath is
 		  we_crtl: 			in std_logic;
 		  ir_crtl: 			in std_logic;
 		  mem_data_crtl: 	in std_logic;
-		  reg_data_crtl: 	in std_logic_vector(1 downto 0);
-		  reg_sel_crtl: 	in std_logic_vector(1 downto 0);
+		  reg_data_crtl: 	in std_logic;
+		  reg_sel_crtl: 	in std_logic;
 		  regWrite: 		in std_logic;
 		  reg_A_crtl: in std_logic;
 		  reg_B_crtl: in std_logic;
-		  alu_a_sel: in std_logic_vector(1 downto 0);
+		  alu_a_sel: in std_logic;
 		  alu_b_sel: in std_logic;
 		  alu_reg_crtl: in std_logic;
-		  pc_source_crtl: in std_logic_vector(1 downto 0);
+		  pc_source_crtl: in std_logic;
 		  reset: in std_logic;
 		  ir_toFSM: out std_logic_vector(3 downto 0);
 		  clock: in std_logic;
@@ -41,15 +41,6 @@ architecture dp of completeDataPath is
 	signal data_in_sel: std_logic_vector(2 downto 0);		-- Register Bank Data in Select
 	signal dataIn_rf: std_logic_vector(15 downto 0);		-- Register Bank Data in
 	signal mem_in: std_logic_vector(15 downto 0);			-- Memory Data IN
-	signal reg_A_out : std_logic_vector(15 downto 0);		-- Output of Register A
-	signal reg_B_out : std_logic_vector(15 downto 0);		-- Output of Register B
-	signal reg_A_in : std_logic_vector(15 downto 0);		-- Input of Register A
-	signal reg_B_in : std_logic_vector(15 downto 0);		-- Input of Register B
-	signal se6to16_out : std_logic_vector(15 downto 0);	-- Sign Extender 6 to 16
-	signal se9to16_out : std_logic_vector(15 downto 0);	-- Sign Extender 9 to 16
-	signal alu_a_in : std_logic_vector(15 downto 0);		-- Input to ALU A port
-	signal alu_b_in : std_logic_vector(15 downto 0);		-- Input to ALU B port
-	signal alu_out : std_logic_vector(15 downto 0);		-- Output of ALU 
 begin
 	
 	PC : register16 port map(dataIn => pcIn,
@@ -70,8 +61,8 @@ begin
 									 dataOut => ir_out ,
 									 clock => clock,
 									 reset => reset);
-	Memory_data : register16 port map(dataIn => mem_out, 
-											 enable => mem_data_crtl,
+	MEM_data : register16 port map(dataIn => mem_out, 
+											 enable => pc_data_crtl,
 											 dataOut => mem_data_out,
 											 clock => clock,
 											 reset => reset);
