@@ -4,13 +4,13 @@ use std.standard.all;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity mux is 
+entity muxALU is 
 	port( in1,in2,in3 : in std_logic_vector(15 downto 0); 
 	      control_signals : in std_logic_vector(1 downto 0); 
 	      out1: out std_logic_vector(15 downto 0));
 end entity;
 
-architecture Behave of mux is
+architecture Behave of muxALU is
 	signal sel0,sel1 : std_logic_vector(15 downto 0);
 
 begin 
