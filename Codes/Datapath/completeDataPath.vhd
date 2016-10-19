@@ -7,6 +7,10 @@ use work.dataPathComponents.all;
 entity completeDataPath is
 	port(pc_reg_crtl: 	in std_logic;
 		  address_crtl: in std_logic;
+		  r7_select : in std_logic;
+		  counter_enable: in std_logic;
+		  store_crtl: in std_logic;
+		  load_crtl: in std_logic;
 		  wren_crtl: 	in std_logic;
 		  rden_crtl: in std_logic;
 		  ir_crtl: 	in std_logic;
@@ -111,7 +115,9 @@ begin
 									  dataIn    => dataIn_rf,
 									  dataInsel => data_in_sel,
 									  reset	   => reset,
-									  regWrite  => regWrite);
+									  regWrite  => regWrite,
+									  pc_in		=> pc_out,
+									  r7_select => r7_select);
 	RF_to_regA_mux : mux_2to1_16bit port map (in0 => RF_to_regA_in ,			-- changes
 						  in1 => alu_out,
 						  sel => reg_A_sel,

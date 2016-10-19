@@ -5,6 +5,17 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package datapathComponents is
+
+	component counter IS
+		PORT
+		(
+			aclr		: IN STD_LOGIC ;
+			clock		: IN STD_LOGIC ;
+			cnt_en		: IN STD_LOGIC ;
+			q		: OUT STD_LOGIC_VECTOR (2 DOWNTO 0)
+		);
+	END component;
+
 	component memory IS
 	PORT
 	(
@@ -65,7 +76,7 @@ package datapathComponents is
 	end component;
 	
 	component mux is
-		port(input0,input1,input2,input3,input4,input5,input6: in std_logic_vector(15 downto 0);
+		port(input0,input1,input2,input3,input4,input5,input6,input7: in std_logic_vector(15 downto 0);
 			  output: out std_logic_vector(15 downto 0);
 			  selectPins: in std_logic_vector(2 downto 0));
 	end component;
@@ -82,9 +93,9 @@ package datapathComponents is
 	end component;
 
 	component mux_4to1_16bit is 
-		port( in_00,in_11,in_01,in_10 : in std_logic_vector(16 downto 0); 
+		port( in_00,in_11,in_01,in_10 : in std_logic_vector(15 downto 0); 
 	      		control_signals : in std_logic_vector(1 downto 0); 
-	      		out1: out std_logic_vector(16 downto 0));
+	      		out1: out std_logic_vector(15 downto 0));
 	end component;
 
 	component muxALU is 
@@ -162,7 +173,9 @@ package datapathComponents is
 		  dataIn	  : in std_logic_vector(15 downto 0);
 		  dataInsel: in std_logic_vector(2 downto 0);
 		  reset	  : in std_logic;
-		  regWrite : in std_logic);
+		  regWrite : in std_logic;
+		  pc_in    : in std_logic_vector(15 downto 0);
+		  r7_select: in std_logic);
 	end component;
 	
 	component register_1bit is

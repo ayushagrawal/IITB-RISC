@@ -5,7 +5,7 @@ library work;
 use work.components_RB.all;
 
 entity mux is
-	port(input0,input1,input2,input3,input4,input5,input6,input7: in std_logic_vector(15 downto 0);
+	port(input0,input1,input2,input3,input4,input5,input6: in std_logic_vector(15 downto 0);
 		  output: out std_logic_vector(15 downto 0);
 		  selectPins: in std_logic_vector(2 downto 0));
 end entity;
@@ -29,8 +29,8 @@ begin
 				input := input5;
 			elsif(selectPins = "110") then
 				input := input6;
-			else					
-				input := input7;
+			else						-- Default Value
+				input := input0;
 			end if;
 			output <= input;
 end process;
