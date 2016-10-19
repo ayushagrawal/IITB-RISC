@@ -66,9 +66,7 @@ architecture formulas of alu is
 	signal carry_temp : std_logic;
 	signal zero_flag1  : std_logic;
 	signal carry_flag1  : std_logic;
-	signal carry_flag2 : std_logic;
-	signal zero_flag2 : std_logic;
-	signal temp1,temp2 : std_logic;
+	signal temp_carry_en,temp_zero_en : std_logic;
 
 begin
     add1 : adder_16bit port map (ra =>ra,rb => rb, rc =>adder_output, zero_flag =>addz, carry_flag =>addc);
@@ -76,17 +74,17 @@ begin
     nnd1 : nand_logic port map (ra => ra, rb => rb, rc => nand_output, zero_flag => nandz);
 	
 	zero_temp <= (addz and(not op4in(3))and(not op4in(2))and(not op4in(1))) or (subz and(op4in(3))and(op4in(2))and(not op4in(1))and(not 					op4in(0))) or (nandz and(not op4in(3))and(not op4in(2))and(op4in(1))and(not op4in(0)));
-	carry_temp <= (addc)and(not op4in(3))and(not op4in(2))and(not op4in(1));
-   	temp1 <= enable_carry and op2in(1) and (not op2in(0));
-	temp2 <= enable_zero and (not op2in(1)) and op2in(0);
-	reg1 : register_1bit port map (dataIn => carry_temp,enable => enable_carry ,dataOut => carry_flag1,clock => clock ,reset => reset);	
-	reg2 : register_1bit port map (dataIn => zero_temp,enable => enable_zero, dataOut => zero_flag1,clock => clock, reset => reset);
 
-	reg3 : register_1bit port map (dataIn => carry_temp,enable => temp1,dataOut => carry_flag2,
-									clock => clock , reset => reset);
-	reg4 : register_1bit port map (dataIn => carry_temp,enable => temp2,dataOut => zero_flag2,
-									clock => clock, reset => reset);	
-	process(adder_output,carry_flag1,zero_flag1,nand_output,op2in,op4in,add_signal,carry_flag2,zero_flag2)
+	carry_temp <= (addc)and(not op4in(3))and(not op4in(2))and(not op4in(1));
+
+	temp_carry_en <= enable_carry and((op2in(1) and (not op2in(0)) and carry_flag1) or ((not op2in(1)) and op2in(0) and zero_flag1) or (not(op2in(1) xor op2in(0))));
+
+	temp_zero_en <= enable_zero and ((op2in(1) and (not op2in(0)) and carry_flag1) or ((not op2in(1)) and op2in(0) and zero_flag1) or (not(op2in(1) xor op2in(0)))); 
+	
+	reg1 : register_1bit port map (dataIn => carry_temp,enable => temp_carry_en ,dataOut => carry_flag1,clock => clock ,reset => reset);	
+	reg2 : register_1bit port map (dataIn => zero_temp,enable => temp_zero_en, dataOut => zero_flag1,clock => clock, reset => reset);
+	
+	process(adder_output,carry_flag1,zero_flag1,nand_output,op2in,op4in,add_signal)
 	variable carry_var	 : 	std_logic;
 	variable zero_var 	 : 	std_logic;
 	variable output_var  : 	std_logic_vector(15 downto 0);
@@ -105,17 +103,15 @@ elsif (add_signal = '0') then
 			carry_var  := carry_flag1;
 			zero_var  :=  zero_flag1;
 
-		elsif(op2in = "10") then									-- ADC (??)
-																	-- checks if carry flag is set
+		elsif(op2in = "10") then									-- ADC (??)														
 				output_var := adder_output ;
-				carry_var  := carry_flag2;
-				zero_var  :=  zero_flag2;
+				carry_var  := carry_flag1;
+				zero_var  :=  zero_flag1;
 			
 		elsif(op2in = "01") then									-- ADZ (??)
-			                               							-- checks if zero flag is set
 				output_var := adder_output ;
-				carry_var  := carry_flag2;
-				zero_var  :=  zero_flag2;
+				carry_var  := carry_flag1;
+				zero_var  :=  zero_flag1;
 			
 		end if;
 
@@ -130,14 +126,12 @@ elsif (add_signal = '0') then
 		zero_var   := zero_flag1;
 		
 		elsif (op2in = "10") then									  -- NDC (??)
-									 								  -- check if carry flag is set
 				output_var := nand_output ;	
-				zero_var   := zero_flag2;
+				zero_var   := zero_flag1;
 
 		elsif (op2in = "01") then									  -- NDZ (??)
-																	  -- check if zero flag is set
 				output_var := nand_output ;	
-				zero_var   := zero_flag2;
+				zero_var   := zero_flag1;
 
 		end if;
 	
