@@ -14,7 +14,7 @@ entity alu is
 		enable_zero : in std_logic;								-- enable zero register
 		add_signal : in std_logic;
 		clock : in std_logic ;
-		reset : in std_logic;
+		reset : in std_logic;						
 		carry_flag : out std_logic;
 		zero_flag : out std_logic 
 		);
@@ -68,6 +68,7 @@ architecture formulas of alu is
 	signal carry_flag1  : std_logic;
 	signal carry_flag2 : std_logic;
 	signal zero_flag2 : std_logic;
+	signal temp1,temp2 : std_logic;
 
 begin
     add1 : adder_16bit port map (ra =>ra,rb => rb, rc =>adder_output, zero_flag =>addz, carry_flag =>addc);
@@ -76,21 +77,24 @@ begin
 	
 	zero_temp <= (addz and(not op4in(3))and(not op4in(2))and(not op4in(1))) or (subz and(op4in(3))and(op4in(2))and(not op4in(1))and(not 					op4in(0))) or (nandz and(not op4in(3))and(not op4in(2))and(op4in(1))and(not op4in(0)));
 	carry_temp <= (addc)and(not op4in(3))and(not op4in(2))and(not op4in(1));
-   	
-	reg1 : register_1bit port map (dataIn => carry_temp,enable => enable_carry,dataOut => carry_flag1,clock => clock ,reset => reset);	
+   	temp1 <= enable_carry and op2in(1) and (not op2in(0));
+	temp2 <= enable_zero and (not op2in(1)) and op2in(0);
+	reg1 : register_1bit port map (dataIn => carry_temp,enable => enable_carry ,dataOut => carry_flag1,clock => clock ,reset => reset);	
 	reg2 : register_1bit port map (dataIn => zero_temp,enable => enable_zero, dataOut => zero_flag1,clock => clock, reset => reset);
 
-	reg3 : register_1bit port map (dataIn => carry_temp,enable => enable_carry and op2in(1) and (not op2in(0)),dataOut => carry_flag2,
+	reg3 : register_1bit port map (dataIn => carry_temp,enable => temp1,dataOut => carry_flag2,
 									clock => clock , reset => reset);
-	reg4 : register_1bit port map (dataIn => carry_temp,enable => enable_zero and (not op2in(1)) and op2in(0),dataOut => zero_flag2,
+	reg4 : register_1bit port map (dataIn => carry_temp,enable => temp2,dataOut => zero_flag2,
 									clock => clock, reset => reset);	
-	process(adder_output,carry_flag1,zero_flag1,nand_output,op2in,op4in,add_signal,nand_output)
+	process(adder_output,carry_flag1,zero_flag1,nand_output,op2in,op4in,add_signal,carry_flag2,zero_flag2)
 	variable carry_var	 : 	std_logic;
 	variable zero_var 	 : 	std_logic;
 	variable output_var  : 	std_logic_vector(15 downto 0);
 
 	begin
-
+	output_var := x"0000";
+	carry_var := '0';
+	zero_var := '0';
 if (add_signal = '1') then											-- for updating the PC
 	output_var := adder_output ;
 
@@ -107,7 +111,6 @@ elsif (add_signal = '0') then
 				carry_var  := carry_flag2;
 				zero_var  :=  zero_flag2;
 			
-
 		elsif(op2in = "01") then									-- ADZ (??)
 			                               							-- checks if zero flag is set
 				output_var := adder_output ;
