@@ -74,7 +74,7 @@ begin
 									 dataOut => pc_out ,
 									 clock => clock,
 									 reset => reset);
-	adress_mux : mux_2to1_16bit port map(in0 => alu_reg_out,
+	adress_mux : mux2 port map(in0 => alu_reg_out,
 													 in1 => pc_out, 
 													 sel => address_crtl, 
 													 out1 => mem_address);
@@ -93,12 +93,12 @@ begin
 											 dataOut => mem_data_out,
 											 clock => clock,
 											 reset => reset);
-	rf_data_mux: mux_3to1_16bit port map(in_00 => mem_data_out,
+	rf_data_mux: mux3 port map(in_00 => mem_data_out,
 													 in_01 => alu_reg_out,
 													 in_10 => lh_out,
 													 control_signals => reg_data_crtl, 
 													 out1 => dataIn_rf);
-	rf_in_sel: mux_4to1_3bit port map(in_00 => priority_en_out,
+	rf_in_sel: mux4 port map(in_00 => priority_en_out,
 												 in_01 => ir_out(8 downto 6),
 												 in_10 => ir_out(11 downto 9), 
 												 in_11 => ir_out(5 downto 3),
@@ -116,12 +116,12 @@ begin
 									  pc_in		=> pc_out,
 									  r7_select => r7_select);
 	
-	RB_B_mux : mux_2to1 port map(in0 => ir_out(8 downto 6),
+	RB_B_mux : mux2 port map(in0 => ir_out(8 downto 6),
 												  in1 => counter_out,
 												  sel => B_sel_RB,
 												  out1=> regSel_B);
 	
-	RF_to_regA_mux : mux_2to1 port map (in0 => RF_to_regA_in ,			-- changes
+	RF_to_regA_mux : mux2 port map (in0 => RF_to_regA_in ,			-- changes
 						  in1 => alu_out,
 						  sel => reg_A_sel,
 						  out1 => reg_A_in);
@@ -136,17 +136,18 @@ begin
 					dataOut => reg_B_out ,
 					clock => clock,
 					reset => reset);	
+					
 	regA_regB_mem_data_in : mux_2to1 port map(in0 => reg_A_out,			-- changes
 							in1 => reg_B_out,
 							sel => mem_data_in_mux_ctrl,
 						        out1 => data_in );	
-	alu_A_mux: mux_4to1_16bit port map(in_00 => pc_out,					-- changes
+	alu_A_mux: mux4 port map(in_00 => pc_out,					-- changes
 												  in_01 => reg_A_out,
 												  in_10 => se6to16_out,
 												  in_11 => x"0000",
 												  control_signals => alu_a_sel, 
 												  out1 => alu_a_in);
-	alu_B_mux : mux_4to1_16bit port map(in_00 => reg_B_out,					  	-- changes
+	alu_B_mux : mux4 port map(in_00 => reg_B_out,					  	-- changes
 													in_01 => se6to16_out,
 													in_10 => se9to16_out,
 													in_11 => "0000000000000001", 
@@ -167,11 +168,11 @@ begin
 									 dataOut => alu_reg_out ,
 									 clock => clock,
 									 reset => reset);
-	pc_mux_1 : mux_2to1 port map(in0 => alu_out,
+	pc_mux_1 : mux2 port map(in0 => alu_out,
 													 in1 => alu_reg_out, 
 													 sel => pc_source_crtl, 
 													 out1 => pc_mux_2_in);
-	pc_mux_2 : mux_2to1 port map(in0 => pc_mux_2_in,
+	pc_mux_2 : mux2 port map(in0 => pc_mux_2_in,
 													 in1 => dataIn_rf, 
 													 sel => data_in_sel(0) and data_in_sel(1) and data_in_sel(2), 
 													 out1 => pcIn);
@@ -190,7 +191,7 @@ begin
 									 cnt_en => counter_enable,
 									 clock => clock,
 									 q => counter_out);
-	cntr_mux : mux_8to1 port map(in0 => ir_out(0), 
+	cntr_mux : mux8 port map(in0 => ir_out(0), 
 										  in1 => ir_out(1), 
 										  in2 => ir_out(2), 
 										  in3 => ir_out(3), 

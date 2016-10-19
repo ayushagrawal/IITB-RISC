@@ -92,46 +92,10 @@ package datapathComponents is
 		  	);
 	end component;
 
-	component mux_4to1_16bit is 
-		port( in_00,in_11,in_01,in_10 : in std_logic_vector(15 downto 0); 
-	      		control_signals : in std_logic_vector(1 downto 0); 
-	      		out1: out std_logic_vector(15 downto 0));
-	end component;
-
 	component muxALU is 
 		port( in1,in2,in3 : in std_logic_vector(15 downto 0); 
 	      		control_signals : in std_logic_vector(1 downto 0); 
 	      		out1: out std_logic_vector(15 downto 0));
-	end component;
-		
-	component mux_1bit is 
-		port( in1,in2,in3 : in std_logic; 
-	      	control_signals : in std_logic_vector(1 downto 0); 
-	      	out1: out std_logic);
-	end component;
-		
-	component mux_2to1_16bit is 
-		port( in0,in1 : in std_logic_vector(15 downto 0); 
-		      sel : in std_logic; 
-	      	out1: out std_logic_vector(15 downto 0));
-	end component;
-		
-	component mux_2to1_8bit is 
-		port( in0,in1 : in std_logic_vector(7 downto 0); 
-	      	sel : in std_logic; 
-	      	out1: out std_logic_vector(7 downto 0));
-	end component;
-		
-	component mux_3to1_16bit is 
-		port( in_00,in_01,in_10 : in std_logic_vector(15 downto 0); 
-	      		control_signals : in std_logic_vector(1 downto 0); 
-	      		out1: out std_logic_vector(15 downto 0));
-	end component;
-	
-	component mux_4to1_3bit is 
-		port( in_00,in_11,in_01,in_10 : in std_logic_vector(2 downto 0); 
-		      control_signals : in std_logic_vector(1 downto 0); 
-	      		out1: out std_logic_vector(2 downto 0));
 	end component;
 		
 	component nand_logic is 
@@ -140,13 +104,6 @@ package datapathComponents is
 	       		zero_flag : out std_logic 
 	    	 );
 	end component;
-		
-	component priority_encoder is
-	port ( 
-		input : in std_logic_vector(7 downto 0) ;
-		output: out std_logic_vector(2 downto 0);
-		out_N : out std_logic) ;
-	end component ;
 	
 	component register16 is
 		port(	dataIn: in std_logic_vector(15 downto 0);
@@ -205,4 +162,6 @@ package datapathComponents is
 		zero_flag : out std_logic 
 		);
 	end component;
+	
+	
 end datapathComponents;
