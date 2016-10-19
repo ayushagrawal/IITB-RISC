@@ -16,9 +16,11 @@
 
 FUNCTION memory 
 (
-	address[3..0],
+	address[5..0],
+	clock,
 	data[15..0],
-	we
+	rden,
+	wren
 )
 
 RETURNS (

@@ -7,7 +7,8 @@ use work.dataPathComponents.all;
 entity completeDataPath is
 	port(pc_reg_crtl: 	in std_logic;
 		  address_crtl: in std_logic;
-		  we_crtl: 	in std_logic;
+		  wren_crtl: 	in std_logic;
+		  rden_crtl: in std_logic;
 		  ir_crtl: 	in std_logic;
 		  mem_data_crtl: in std_logic;
 		  mem_data_in_mux_ctrl : in std_logic;				--
@@ -18,7 +19,7 @@ entity completeDataPath is
 		  reg_A_crtl: 	in std_logic;
 		  reg_B_crtl: 	in std_logic;
 		  alu_a_sel: 	in std_logic_vector(1 downto 0);
-		  alu_b_sel: 	in std_logic;
+		  alu_b_sel: 	in std_logic_vector(1 downto 0);
 		  alu_reg_crtl: in std_logic;
 		  alu_crtl: 	in std_logic_vector(1 downto 0);
 		  enable_carry: in std_logic;
@@ -78,7 +79,8 @@ begin
 													 out1 => mem_address);
 	RAM : memory port map(address => mem_address,
 								 data => reg_A_out, 
-								 we => we_crtl, 
+								 wren => wren_crtl, 
+								 rden => rden_crtl,
 								 q => mem_out);
 	IR : register16 port map(dataIn => mem_out, 
 									 enable => ir_crtl, 
@@ -130,17 +132,17 @@ begin
 							sel => mem_data_in_mux_ctrl,
 						        out1 => data_in );	
 	alu_A_mux: mux_4to1_16bit port map(in_00 => pc_out,					-- changes
-					in_01 => reg_A_out,
-					in_10 => se6to16_out,
-					in_11 => x"0000",
-					control_signals => alu_a_sel, 
-					out1 => alu_a_in);
+												  in_01 => reg_A_out,
+												  in_10 => se6to16_out,
+												  in_11 => x"0000",
+												  control_signals => alu_a_sel, 
+												  out1 => alu_a_in);
 	alu_B_mux : mux_4to1_16bit port map(in_00 => reg_B_out,					  	-- changes
-					    in_01 => se6to16_out,
-					    in_10 => se9to16_out,
-						in_11 => "0000000000000001", 
-						 sel => alu_b_sel, 
-						out1 => alu_b_in);
+													in_01 => se6to16_out,
+													in_10 => se9to16_out,
+													in_11 => "0000000000000001", 
+													control_signals => alu_b_sel, 
+													out1 => alu_b_in);
 	ALU : alu_combined port map (	ra => alu_a_in,
 											rb => alu_b_in, 
 											rc => alu_out,

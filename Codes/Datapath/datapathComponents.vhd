@@ -9,8 +9,10 @@ package datapathComponents is
 	PORT
 	(
 		address		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
+		clock		: IN STD_LOGIC  := '1';
 		data		: IN STD_LOGIC_VECTOR (15 DOWNTO 0);
-		we		: IN STD_LOGIC  := '1';
+		rden		: IN STD_LOGIC  := '1';
+		wren		: IN STD_LOGIC ;
 		q		: OUT STD_LOGIC_VECTOR (15 DOWNTO 0)
 	);
 	END component;
