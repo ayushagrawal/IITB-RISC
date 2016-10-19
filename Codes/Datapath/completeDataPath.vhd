@@ -7,12 +7,13 @@ use work.dataPathComponents.all;
 entity completeDataPath is
 	port(pc_reg_crtl: 	in std_logic;
 		  address_crtl: in std_logic;
+		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
 		  store_crtl: in std_logic;
 		  load_crtl: in std_logic;
-		  wren_crtl: 	in std_logic;
-		  rden_crtl: in std_logic;
+		  wren: 	in std_logic;
+		  rden: in std_logic;
 		  ir_crtl: 	in std_logic;
 		  mem_data_crtl: in std_logic;
 		  mem_data_in_mux_ctrl : in std_logic;				--
@@ -29,8 +30,6 @@ entity completeDataPath is
 		  enable_carry: in std_logic;
 		  enable_zero: 	in std_logic;
 		  pc_source_crtl: in std_logic;
-		  pe_crtl : 	in std_logic;
-		  pe_mux_crtl : in std_logic;
 		  reset: 	in std_logic;
 		  ir_toFSM: 	out std_logic_vector(3 downto 0);
 		  clock: 	in std_logic;
@@ -64,12 +63,10 @@ architecture dp of completeDataPath is
 	signal alu_out : std_logic_vector(15 downto 0);			-- Output of ALU 
 	signal pc_mux_2_in : std_logic_vector(15 downto 0);		-- Input to PC mux
 	--signal and_out: std_logic;					-- PC mux 2 control bit
-	signal pe_reg_out : std_logic_vector(7 downto 0);		-- Priority Encoder Register Output
-	signal decode_pe_out : std_logic_vector(7 downto 0);		-- Decoder PE Output
-	signal pe_mux_out : std_logic_vector(7 downto 0);		-- 
-	signal pe_andOut : std_logic_vector(7 downto 0);
 	signal RF_to_regA_in : std_logic_vector(15 downto 0);		-- Input for RF_to_regA_mux from RF
 	signal data_in : std_logic_vector(15 downto 0);			-- input to memory from regA_regB_mux
+	signal one_bit_crtl : std_logic;
+	signal regSel_B : std_logic_vector(2 downto 0);
 begin
 	
 	PC : register16 port map(dataIn => pcIn,
@@ -83,8 +80,8 @@ begin
 													 out1 => mem_address);
 	RAM : memory port map(address => mem_address,
 								 data => reg_A_out, 
-								 wren => wren_crtl, 
-								 rden => rden_crtl,
+								 wren => (wren and (one_bit_crtl or store_crtl)), 
+								 rden => (rden and (one_bit_crtl or load_crtl)),
 								 q => mem_out);
 	IR : register16 port map(dataIn => mem_out, 
 									 enable => ir_crtl, 
@@ -111,14 +108,20 @@ begin
 									  dataOut_B => reg_B_in,
 									  clock_rb  => clock,
 									  regSel_A  => ir_out(11 downto 9),
-									  regSel_B  => ir_out(8 downto 6),
+									  regSel_B  => regSel_B,
 									  dataIn    => dataIn_rf,
 									  dataInsel => data_in_sel,
 									  reset	   => reset,
-									  regWrite  => regWrite,
+									  regWrite  => (regWrite and (one_bit_crtl or load_crtl)),
 									  pc_in		=> pc_out,
 									  r7_select => r7_select);
-	RF_to_regA_mux : mux_2to1_16bit port map (in0 => RF_to_regA_in ,			-- changes
+	
+	RB_B_mux : mux_2to1 port map(in0 => ir_out(8 downto 6),
+												  in1 => counter_out,
+												  sel => B_sel_RB,
+												  out1=> regSel_B);
+	
+	RF_to_regA_mux : mux_2to1 port map (in0 => RF_to_regA_in ,			-- changes
 						  in1 => alu_out,
 						  sel => reg_A_sel,
 						  out1 => reg_A_in);
@@ -133,7 +136,7 @@ begin
 					dataOut => reg_B_out ,
 					clock => clock,
 					reset => reset);	
-	regA_regB_mem_data_in : mux_2to1_16bit port map(in0 => reg_A_out,			-- changes
+	regA_regB_mem_data_in : mux_2to1 port map(in0 => reg_A_out,			-- changes
 							in1 => reg_B_out,
 							sel => mem_data_in_mux_ctrl,
 						        out1 => data_in );	
@@ -164,11 +167,11 @@ begin
 									 dataOut => alu_reg_out ,
 									 clock => clock,
 									 reset => reset);
-	pc_mux_1 : mux_2to1_16bit port map(in0 => alu_out,
+	pc_mux_1 : mux_2to1 port map(in0 => alu_out,
 													 in1 => alu_reg_out, 
 													 sel => pc_source_crtl, 
 													 out1 => pc_mux_2_in);
-	pc_mux_2 : mux_2to1_16bit port map(in0 => pc_mux_2_in,
+	pc_mux_2 : mux_2to1 port map(in0 => pc_mux_2_in,
 													 in1 => dataIn_rf, 
 													 sel => data_in_sel(0) and data_in_sel(1) and data_in_sel(2), 
 													 out1 => pcIn);
@@ -180,20 +183,22 @@ begin
 													  output => se6to16_out);
 	load_higher : LH port map(input => ir_out(8 downto 0),
 									  output => lh_out);
-	priority_enc : priority_encoder port map(input => pe_reg_out,
-														  output => priority_en_out,
-														  out_N => error_PE);
-	decode_PE : decoder_3to8 port map(input => priority_en_out,
-												 output => decode_pe_out);
-	PE_register : register8 port map(dataIn => pe_mux_out, 
-									 enable => pe_crtl, 
-									 dataOut => pe_reg_out,
-									 clock => clock,
-									 reset => reset);
-	PE_mux : mux_2to1_8bit port map(in0 => pe_andOut,
-													 in1 => ir_out(7 downto 0), 
-													 sel => pe_mux_crtl, 
-													 out1 => pe_mux_out);
-	pe_andOut <= (pe_reg_out) and (decode_pe_out);
+	
+	
 	ir_toFSM <= ir_out(15 downto 12);
+	count : counter port map(aclr => counter_clr,
+									 cnt_en => counter_enable,
+									 clock => clock,
+									 q => counter_out);
+	cntr_mux : mux_8to1 port map(in0 => ir_out(0), 
+										  in1 => ir_out(1), 
+										  in2 => ir_out(2), 
+										  in3 => ir_out(3), 
+										  in4 => ir_out(4), 
+										  in4 => ir_out(4), 
+										  in5 => ir_out(5), 
+										  in6 => ir_out(6), 
+										  in7 => ir_out(7),
+										  sel => counter_out,	-- Point of debugging
+										  output => one_bit_crtl);
 end;
