@@ -4,14 +4,14 @@ use std.standard.all;
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity mux is 
+entity mux4 is 
 	generic (n : integer);
 	port( in1,in2,in3,in4 : in std_logic_vector(n downto 0); 
 	      control_signals : in std_logic_vector(1 downto 0); 
 	      output: out std_logic_vector(n downto 0));
 end entity;
 
-architecture Behave of mux is
+architecture Behave of mux4 is
 	signal sel0,sel1 : std_logic_vector(n downto 0);
 
 begin 
