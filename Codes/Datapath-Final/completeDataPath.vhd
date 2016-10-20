@@ -6,7 +6,7 @@ use work.dataPathComponents.all;
 
 entity completeDataPath is
 	port(pc_reg_crtl: 	in std_logic;
-		  address_crtl: in std_logic;
+		  address_crtl: in std_logic_vector(1 downto 0);
 		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
@@ -74,10 +74,11 @@ begin
 									 dataOut => pc_out ,
 									 clock => clock,
 									 reset => reset);
-	adress_mux : mux2 generic map (n => 15) port map(in0 => alu_reg_out,
-													 in1 => pc_out, 
-													 sel => address_crtl, 
-													 output => mem_address);
+	adress_mux : mux3 generic map (n => 15) port map(in0 => alu_reg_out,
+							 in1 => pc_out,
+							 in2 => reg_A_out
+							 sel => address_crtl, 
+							 output => mem_address);
 	RAM : memory port map(address => mem_address,
 								 data => data_in, 
 								 wren => (wren and (one_bit_crtl(0) or store_crtl)), 
