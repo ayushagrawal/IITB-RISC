@@ -116,9 +116,9 @@ begin
 									  pc_in		=> pc_out,
 									  r7_select => r7_select);
 	
-	RB_B_mux : mux2 generic map (n => 2) port map(in0 => ir_out(8 downto 6),
-												  in1 => counter_out,
-												  sel => B_sel_RB,
+	RB_B_mux : mux2 generic map (n => 2) port map(in0 => counter_out,
+								in1 => ir_out(8 downto 6),
+								sel => ((not counter_enable) or one_bit_crtl(0 downto 0)),
 												  output=> regSel_B);
 	
 	RF_to_regA_mux : mux2  generic map (n => 15) port map (in0 => RF_to_regA_in ,			-- changes
