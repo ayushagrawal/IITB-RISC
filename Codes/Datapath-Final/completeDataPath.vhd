@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library work;
-use work.dataPathComponents.all;
+use work.datapathComponents.all;
 
 entity completeDataPath is
 	port(pc_reg_crtl: 	in std_logic;
@@ -12,7 +12,6 @@ entity completeDataPath is
 		  counter_enable: in std_logic;
 		  wren: 	in std_logic;
 		  rden: in std_logic;
-		  B_sel_Rb: in std_logic;
 		  ir_crtl: 	in std_logic;
 		  mem_data_crtl: in std_logic;
 		  mem_data_in_mux_ctrl : in std_logic;				--
@@ -67,13 +66,12 @@ architecture dp of completeDataPath is
 	signal counter_out : std_logic_vector(2 downto 0);
 	signal store_crtl: std_logic;
 	signal load_crtl: std_logic;
-	signal pc_reg : std_logic;
 
 begin
 	
 	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
 	load_ctrl <= not((not ir_out(15)) and (ir_out(14)) and (ir_out(13)) and (not ir_out(12)));			--
-	pc_reg <= pc_reg_ctrl or (regWrite and (data_in_sel(0) and data_in_sel(1) and data_in_sel(2)));		         --
+
 	PC : register16 port map(dataIn => pcIn,
 									 enable => pc_reg_crtl,
 									 dataOut => pc_out ,
