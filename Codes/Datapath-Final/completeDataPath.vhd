@@ -10,6 +10,7 @@ entity completeDataPath is
 		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
+	          sign_ext_control : in std_logic;
 		  wren: 	in std_logic;
 		  rden: in std_logic;
 		  ir_crtl: 	in std_logic;
@@ -67,7 +68,8 @@ architecture dp of completeDataPath is
 	signal store_crtl: std_logic;
 	signal load_crtl: std_logic;
 	signal pc_reg : std_logic;
-
+	signal sign_mux_out : std_logic_vector(15 downto 0);  		-- output of sign extender mux
+	signal cntr_out_16bit : std_logic_vector(15 downto 0);	-- 16 bit counter output
 begin
 	
 	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
@@ -148,15 +150,21 @@ begin
 							in1 => reg_B_out,
 							sel => mem_data_in_mux_ctrl,
 						        output => data_in );	
+	
+	sign_extend_mux : mux2 generic map (n => 15) port map(in0 => se6to16_out,			-- changes
+							      in1 => se9to16_out,
+							      sel => sign_ext_control,
+							      output => sign_mux_out);
+
 	alu_A_mux: mux4 generic map (n => 15) port map(in0 => pc_out,					-- changes
 												  in1 => reg_A_out,
-												  in2 => se6to16_out,
+												  in2 => sign_mux_out,
 												  in3 => x"0000",
 												  sel => alu_a_sel, 
 												  output => alu_a_in);
 	alu_B_mux : mux4 generic map (n => 15) port map(in0 => reg_B_out,					  	-- changes
-													in1 => se6to16_out,
-													in2 => se9to16_out,
+													in1 => sign_mux_out,
+													in2 => cntr_out_16bit,
 													in3 => "0000000000000001", 
 													sel => alu_b_sel, 
 													output => alu_b_in);
@@ -210,4 +218,6 @@ begin
 										  in7 => ir_out(7 downto 7),
 										  sel => counter_out,	-- Point of debugging
 										  output => one_bit_crtl(0 downto 0));
+	
+	cntr_out_16bit <= (0 => one_bit_crtl, others => '0');
 end;
