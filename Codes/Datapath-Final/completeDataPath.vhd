@@ -10,8 +10,6 @@ entity completeDataPath is
 		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
-		  store_crtl: in std_logic;
-		  load_crtl: in std_logic;
 		  wren: 	in std_logic;
 		  rden: in std_logic;
 		  B_sel_Rb: in std_logic;
@@ -67,8 +65,14 @@ architecture dp of completeDataPath is
 	signal one_bit_crtl : std_logic_vector(0 downto 0);
 	signal regSel_B : std_logic_vector(2 downto 0);
 	signal counter_out : std_logic_vector(2 downto 0);
+	signal store_crtl: std_logic;
+	signal load_crtl: std_logic;
+
 begin
 	
+	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
+	load_ctrl <= not((not ir_out(15)) and (ir_out(14)) and (ir_out(13)) and (not ir_out(12)));			--
+
 	PC : register16 port map(dataIn => pcIn,
 									 enable => pc_reg_crtl,
 									 dataOut => pc_out ,
