@@ -5,28 +5,28 @@ library work;
 use work.combinedComponents.all;
 
 entity completeDataPath is
-	port(pc_reg_ctrl: 	in std_logic;
-		  address_ctrl: in std_logic_vector(1 downto 0);
+	port(pc_reg_crtl: 	in std_logic;
+		  address_crtl: in std_logic_vector(1 downto 0);
 		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
 		  wren: 	in std_logic;
 		  rden: in std_logic;
-		  ir_ctrl: 	in std_logic;
-		  mem_data_ctrl: in std_logic;
+		  ir_crtl: 	in std_logic;
+		  mem_data_crtl: in std_logic;
 		  mem_data_in_mux_ctrl : in std_logic;				--
-		  reg_data_ctrl: in std_logic_vector(1 downto 0);
-		  reg_sel_ctrl: in std_logic_vector(1 downto 0);
+		  reg_data_crtl: in std_logic_vector(1 downto 0);
+		  reg_sel_crtl: in std_logic_vector(1 downto 0);
 		  regWrite: 	in std_logic;
 		  reg_A_sel : 	in std_logic;					--
-		  reg_A_ctrl: 	in std_logic;
-		  reg_B_ctrl: 	in std_logic;
+		  reg_A_crtl: 	in std_logic;
+		  reg_B_crtl: 	in std_logic;
 		  alu_a_sel: 	in std_logic_vector(1 downto 0);
 		  alu_b_sel: 	in std_logic_vector(1 downto 0);
-		  alu_reg_ctrl: in std_logic;
+		  alu_reg_crtl: in std_logic;
 		  enable_carry: in std_logic;
 		  enable_zero: 	in std_logic;
-		  pc_source_ctrl: in std_logic;
+		  pc_source_crtl: in std_logic;
 		  reset: 	in std_logic;
 		  ir_toFSM: 	out std_logic_vector(3 downto 0);
 		  clock: 	in std_logic;
@@ -61,11 +61,11 @@ architecture dp of completeDataPath is
 	--signal and_out: std_logic;					-- PC mux 2 control bit
 	signal RF_to_regA_in : std_logic_vector(15 downto 0);		-- Input for RF_to_regA_mux from RF
 	signal data_in : std_logic_vector(15 downto 0);			-- input to memory from regA_regB_mux
-	signal one_bit_ctrl : std_logic_vector(0 downto 0);
+	signal one_bit_crtl : std_logic_vector(0 downto 0);
 	signal regSel_B : std_logic_vector(2 downto 0);
 	signal counter_out : std_logic_vector(2 downto 0);
-	signal store_ctrl: std_logic;
-	signal load_ctrl: std_logic;
+	signal store_crtl: std_logic;
+	signal load_crtl: std_logic;
 
 begin
 	
@@ -73,41 +73,41 @@ begin
 	load_ctrl <= not((not ir_out(15)) and (ir_out(14)) and (ir_out(13)) and (not ir_out(12)));			--
 
 	PC : register16 port map(dataIn => pcIn,
-									 enable => pc_reg_ctrl,
+									 enable => pc_reg_crtl,
 									 dataOut => pc_out ,
 									 clock => clock,
 									 reset => reset);
 	adress_mux : mux3 generic map (n => 15) port map(in0 => alu_reg_out,
 							 in1 => pc_out,
 							 in2 => reg_A_out,
-							 sel => address_ctrl, 
+							 sel => address_crtl, 
 							 output => mem_address);
 	RAM : memory port map(address => mem_address,
 								 data => data_in, 
-								 wren => (wren and (one_bit_ctrl(0) or store_ctrl)), 
-								 rden => (rden and (one_bit_ctrl(0) or load_ctrl)),
+								 wren => (wren and (one_bit_crtl(0) or store_crtl)), 
+								 rden => (rden and (one_bit_crtl(0) or load_crtl)),
 								 q => mem_out,
 								 clock => clock);
 	IR : register16 port map(dataIn => mem_out, 
-									 enable => ir_ctrl, 
+									 enable => ir_crtl, 
 									 dataOut => ir_out ,
 									 clock => clock,
 									 reset => reset);
 	Memory_data : register16 port map(dataIn => mem_out, 
-											 enable => mem_data_ctrl,
+											 enable => mem_data_crtl,
 											 dataOut => mem_data_out,
 											 clock => clock,
 											 reset => reset);
 	rf_data_mux: mux3 generic map (n => 15) port map(in0 => mem_data_out,
 													 in1 => alu_reg_out,
 													 in2 => lh_out,
-													 sel => reg_data_ctrl, 
+													 sel => reg_data_crtl, 
 													 output => dataIn_rf);
 	rf_in_sel: mux4 generic map (n => 2) port map(in0 => counter_out,
 												 in1 => ir_out(8 downto 6),
 												 in2 => ir_out(11 downto 9), 
 												 in3 => ir_out(5 downto 3),
-												 sel => reg_sel_ctrl,
+												 sel => reg_sel_crtl,
 												 output => data_in_sel);
 	RF: registerBank port map(	dataOut_A => RF_to_regA_in,
 									  dataOut_B => reg_B_in,
@@ -117,13 +117,13 @@ begin
 									  dataIn    => dataIn_rf,
 									  dataInsel => data_in_sel,
 									  reset	   => reset,
-									  regWrite  => (regWrite and (one_bit_ctrl(0) or load_ctrl)),
+									  regWrite  => (regWrite and (one_bit_crtl(0) or load_crtl)),
 									  pc_in		=> pc_out,
 									  r7_select => r7_select);
 	
 	RB_B_mux : mux2 generic map (n => 2) port map(in0 => counter_out,
 								in1 => ir_out(8 downto 6),
-								sel => ((not counter_enable) or one_bit_ctrl(0)),
+								sel => ((not counter_enable) or one_bit_crtl(0 downto 0)),
 												  output=> regSel_B);
 	
 	RF_to_regA_mux : mux2  generic map (n => 15) port map (in0 => RF_to_regA_in ,			-- changes
@@ -132,12 +132,12 @@ begin
 						  output => reg_A_in);
 
 	Register_A : register16 port map(dataIn => reg_A_in, 						
-					enable => reg_A_ctrl, 
+					enable => reg_A_crtl, 
 					dataOut => reg_A_out ,
 					clock => clock,
 					reset => reset);
 	Register_B : register16 port map(dataIn => reg_B_in, 
-					enable => reg_B_ctrl, 
+					enable => reg_B_crtl, 
 					dataOut => reg_B_out ,
 					clock => clock,
 					reset => reset);	
@@ -171,13 +171,13 @@ begin
 											reset => reset,		
 											zero_flag => zero);
 	ALU_register: register16 port map(dataIn => alu_out, 
-									 enable => alu_reg_ctrl, 
+									 enable => alu_reg_crtl, 
 									 dataOut => alu_reg_out ,
 									 clock => clock,
 									 reset => reset);
 	pc_mux_1 : mux2 generic map (n => 15) port map(in0 => alu_out,
 													 in1 => alu_reg_out, 
-													 sel => pc_source_ctrl, 
+													 sel => pc_source_crtl, 
 													 output => pc_mux_2_in);
 	pc_mux_2 : mux2 generic map (n => 15) port map(in0 => pc_mux_2_in,
 													 in1 => dataIn_rf, 
@@ -207,5 +207,5 @@ begin
 										  in6 => ir_out(6 downto 6), 
 										  in7 => ir_out(7 downto 7),
 										  sel => counter_out,	-- Point of debugging
-										  output => one_bit_ctrl(0 downto 0));
+										  output => one_bit_crtl(0 downto 0));
 end;

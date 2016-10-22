@@ -209,37 +209,35 @@ package combinedComponents is
 	end component;
 	component fsm_controller is 
  	port (
-		  opcode					: in std_logic_vector(3 downto 0);
+		  opcode				: in std_logic_vector(3 downto 0);
 		  reset				  	: in std_logic;
 		  carry					: in std_logic;
 		  zero					: in std_logic;
-		  clk						: in std_logic;
+		  clk					: in std_logic;
 		  -- Add control signals here
-		  reset_to_DataPath 	: out std_logic;
-		  pc_reg_crtl			: out std_logic;
-		  address_crtl			: out std_logic_vector(1 downto 0);
+		  reset_to_DataPath 			: out std_logic;
+		  pc_reg_crtl				: out std_logic;
+		  address_crtl				: out std_logic_vector(1 downto 0);
 		  wren					: out std_logic;
 		  rden					: out std_logic;
 		  ir_crtl				: out std_logic;
-		  mem_data_crtl		: out std_logic;
-		  reg_data_crtl		: out std_logic_vector(1 downto 0);
-		  reg_sel_crtl			: out std_logic_vector(1 downto 0);
+		  mem_data_crtl				: out std_logic;
+		  reg_data_crtl				: out std_logic_vector(1 downto 0);
+		  reg_sel_crtl				: out std_logic_vector(1 downto 0);
 		  regWrite				: out std_logic;
-		  reg_A_crtl			: out std_logic;
-		  reg_B_crtl			: out std_logic;
+		  reg_A_crtl				: out std_logic;
+		  reg_B_crtl				: out std_logic;
 		  alu_a_sel				: out std_logic_vector(1 downto 0);
 		  alu_b_sel				: out std_logic_vector(1 downto 0);
-		  alu_reg_crtl			: out std_logic;
-		  enable_carry			: out std_logic;
-		  enable_zero			: out std_logic;
-		  pc_source_crtl		: out std_logic;
+		  alu_reg_crtl				: out std_logic;
+		  enable_carry				: out std_logic;
+		  enable_zero				: out std_logic;
+		  pc_source_crtl			: out std_logic;
 		  reg_A_sel				: out std_logic;
-		  add_signal			: out std_logic;
-		  mem_data_in_mux_crtl	: out std_logic;
+		  add_signal				: out std_logic;
+		  mem_data_in_mux_crtl			:out std_logic;
 		  R7_select				: out std_logic;
-		  counter_enable		: out std_logic;
-		  sign_ext_crtl			: out std_logic;
-		  counter_clear			: out std_logic);
+		  counter_enable			: out std_logic);
 	end component;
 	
 end combinedComponents;
