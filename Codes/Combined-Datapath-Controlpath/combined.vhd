@@ -17,26 +17,26 @@ signal		  ir_toFSM:  std_logic_vector(3 downto 0);
 signal		  carry: 	 std_logic;	
 signal		  zero: 	 std_logic;
 signal		  reset: 	 std_logic;
-signal 		  pc_reg_crtl: 	 std_logic;
-signal		  address_crtl:  std_logic_vector(1 downto 0);
+signal 		  pc_reg_ctrl: 	 std_logic;
+signal		  address_ctrl:  std_logic_vector(1 downto 0);
 signal		  wren: 	 std_logic;
 signal		  rden:  std_logic;
-signal		  ir_crtl: 	 std_logic;
-signal		  mem_data_crtl:  std_logic;
-signal		  reg_data_crtl:  std_logic_vector(1 downto 0);
-signal		  reg_sel_crtl:  std_logic_vector(1 downto 0);
+signal		  ir_ctrl: 	 std_logic;
+signal		  mem_data_ctrl:  std_logic;
+signal		  reg_data_ctrl:  std_logic_vector(1 downto 0);
+signal		  reg_sel_ctrl:  std_logic_vector(1 downto 0);
 signal		  regWrite: 	 std_logic;
-signal		  reg_A_crtl: 	 std_logic;
-signal		  reg_B_crtl: 	 std_logic;
+signal		  reg_A_ctrl: 	 std_logic;
+signal		  reg_B_ctrl: 	 std_logic;
 signal		  alu_a_sel: 	 std_logic_vector(1 downto 0);
 signal		  alu_b_sel: 	 std_logic_vector(1 downto 0);
-signal		  alu_reg_crtl:  std_logic;
+signal		  alu_reg_ctrl:  std_logic;
 signal		  enable_carry:  std_logic;
 signal		  enable_zero: 	 std_logic;
-signal		  pc_source_crtl:  std_logic;
+signal		  pc_source_ctrl:  std_logic;
 signal		  reg_A_sel : 	 std_logic;
 signal		  add_signal :  std_logic;
-signal		  mem_data_in_mux_crtl :  std_logic;				--
+signal		  mem_data_in_mux_ctrl :  std_logic;				--
 signal		  r7_select :  std_logic;
 signal		  counter_clr:  std_logic;
 signal		  counter_enable:  std_logic;									
@@ -51,54 +51,54 @@ controller: fsm_controller port map
 		  zero				=>zero,
 		  clk				=>clock_c,
 		  reset_to_DataPath	=>reset,
-		  pc_reg_crtl		=>pc_reg_crtl,
-		  address_crtl		=>address_crtl,
+		  pc_reg_ctrl		=>pc_reg_ctrl,
+		  address_ctrl		=>address_ctrl,
 		  wren				=>wren,
 		  rden				=>rden,
-		  ir_crtl			=>ir_crtl,
-		  mem_data_crtl		=> mem_data_crtl,
-		  reg_data_crtl		=> reg_data_crtl,
-		  reg_sel_crtl		=> reg_sel_crtl,
+		  ir_ctrl			=>ir_ctrl,
+		  mem_data_ctrl		=> mem_data_ctrl,
+		  reg_data_ctrl		=> reg_data_ctrl,
+		  reg_sel_ctrl		=> reg_sel_ctrl,
 		  regWrite			=> regWrite,
-		  reg_A_crtl		=> reg_A_crtl,
-		  reg_B_crtl		=> reg_B_crtl,
+		  reg_A_ctrl		=> reg_A_ctrl,
+		  reg_B_ctrl		=> reg_B_ctrl,
 		  alu_a_sel			=> alu_a_sel,
 		  alu_b_sel			=> alu_b_sel,
-		  alu_reg_crtl		=> alu_reg_crtl,
+		  alu_reg_ctrl		=> alu_reg_ctrl,
 		  enable_carry		=> enable_carry,
 		  enable_zero		=> enable_zero,
-		  pc_source_crtl	=>pc_source_crtl,
+		  pc_source_ctrl	=>pc_source_ctrl,
 		  reg_A_sel			=>reg_A_sel,
 		  add_signal		=>add_signal,
-		  mem_data_in_mux_crtl	=>mem_data_in_mux_crtl,
+		  mem_data_in_mux_ctrl	=>mem_data_in_mux_ctrl,
 		  R7_select			=>r7_select,
-		  counter_clear		=>counter_clr,
+		  counter_clr		=>counter_clr,
 		  counter_enable	=>counter_enable
 		);
 
 datapath: completeDataPath port map
 		(
-		  pc_reg_crtl			=>pc_reg_crtl,
-		  address_crtl			=>address_crtl,
+		  pc_reg_ctrl			=>pc_reg_ctrl,
+		  address_ctrl			=>address_ctrl,
 		  counter_clr			=>counter_clr,
 		  r7_select				=>R7_select,
 		  counter_enable		=>counter_enable,
 		  wren					=>wren,
 		  rden					=>rden,
-		  ir_crtl				=>ir_crtl,
-		  mem_data_in_mux_ctrl	=>mem_data_in_mux_crtl,
-		  mem_data_crtl			=> mem_data_crtl,
-		  reg_data_crtl			=> reg_data_crtl,
-		  reg_sel_crtl			=> reg_sel_crtl,
+		  ir_ctrl				=>ir_ctrl,
+		  mem_data_in_mux_ctrl	=>mem_data_in_mux_ctrl,
+		  mem_data_ctrl			=> mem_data_ctrl,
+		  reg_data_ctrl			=> reg_data_ctrl,
+		  reg_sel_ctrl			=> reg_sel_ctrl,
 		  regWrite				=> regWrite,
-		  reg_A_crtl			=> reg_A_crtl,
-		  reg_B_crtl			=> reg_B_crtl,
+		  reg_A_ctrl			=> reg_A_ctrl,
+		  reg_B_ctrl			=> reg_B_ctrl,
 		  alu_a_sel				=> alu_a_sel,
 		  alu_b_sel				=> alu_b_sel,
-		  alu_reg_crtl			=> alu_reg_crtl,
+		  alu_reg_ctrl			=> alu_reg_ctrl,
 		  enable_carry			=> enable_carry,
 		  enable_zero			=> enable_zero,
-		  pc_source_crtl		=>pc_source_crtl,
+		  pc_source_ctrl		=>pc_source_ctrl,
 		  reg_A_sel				=>reg_A_sel,
 		  reset					=>reset,
 		  ir_toFSM				=>ir_toFSM,
@@ -108,4 +108,3 @@ datapath: completeDataPath port map
 		  add_signal			=>add_signal
 		);
 end combo;
-
