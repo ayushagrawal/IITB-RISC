@@ -40,7 +40,7 @@ architecture controller of fsm_controller is
 	type states is (reset_state,fetch,decode,execute,store,adi_1,LHI_1,LW_1,LW_2,LW_3,SW_1,BEQ,JAL_1,JLR_1,LM_1,LM_2,SM_1);
   signal state_sig: states;
 begin
-process(opcode,clk,state_sig)
+process(opcode,clk,state_sig,zero)
    variable nstate: states;
 	variable Nreset_to_DataPath : std_logic;
 	variable Npc_reg_crtl : std_logic;
@@ -275,8 +275,8 @@ begin
 				Nalu_b_sel := "01";
 				Npc_source_crtl := '0';
 				Npc_reg_crtl := '1';
-				sign_ext_crtl := '0';
-				Nnstate := fetch;
+				Nsign_ext_crtl := '1';
+				nstate := fetch;
 			end if;
 			
 -- STATE 12
@@ -355,35 +355,34 @@ begin
 			state_sig <= reset_state;
 			-- Give the initial value or default value to the pseudo control signals i.e. nX
 		else
-		
 			state_sig <= nstate;
-		 -- Finally enter the output control signals here as: x <= nX
-			reset_to_DataPath 	<= Nreset_to_DataPath;
-			pc_reg_crtl				<= Npc_reg_crtl;
-			address_crtl			<= Naddress_crtl;
-			wren						<= Nwren;
-			rden						<= Nrden;
-			ir_crtl					<= Nir_crtl;
-			mem_data_crtl			<= Nmem_data_crtl;
-			reg_data_crtl			<= Nreg_data_crtl;
-			reg_sel_crtl			<= Nreg_sel_crtl;
-			regWrite					<= NregWrite;
-			reg_A_crtl				<= Nreg_A_crtl;
-			reg_B_crtl				<= Nreg_B_crtl;
-			alu_a_sel				<= Nalu_a_sel;
-			alu_b_sel				<= Nalu_b_sel;
-			alu_reg_crtl			<= Nalu_reg_crtl;
-			enable_carry			<= Nenable_carry;
-			enable_zero				<= Nenable_zero;
-			pc_source_crtl			<= Npc_source_crtl;
-			reg_A_sel				<= Nreg_A_sel;
-			add_signal				<= Nadd_signal;
-			mem_data_in_mux_crtl 	<= Nmem_data_in_mux_crtl;
-			R7_select				<= NR7_select;
-			counter_enable			<= Ncounter_enable;
-			sign_ext_crtl			<= Nsign_ext_crtl;
-			counter_clear			<= Ncounter_clear;
 		end if;
+		 -- Finally enter the output control signals here as: x <= nX
+		reset_to_DataPath 	<= Nreset_to_DataPath;
+		pc_reg_crtl				<= Npc_reg_crtl;
+		address_crtl			<= Naddress_crtl;
+		wren						<= Nwren;
+		rden						<= Nrden;
+		ir_crtl					<= Nir_crtl;
+		mem_data_crtl			<= Nmem_data_crtl;
+		reg_data_crtl			<= Nreg_data_crtl;
+		reg_sel_crtl			<= Nreg_sel_crtl;
+		regWrite					<= NregWrite;
+		reg_A_crtl				<= Nreg_A_crtl;
+		reg_B_crtl				<= Nreg_B_crtl;
+		alu_a_sel				<= Nalu_a_sel;
+		alu_b_sel				<= Nalu_b_sel;
+		alu_reg_crtl			<= Nalu_reg_crtl;
+		enable_carry			<= Nenable_carry;
+		enable_zero				<= Nenable_zero;
+		pc_source_crtl			<= Npc_source_crtl;
+		reg_A_sel				<= Nreg_A_sel;
+		add_signal				<= Nadd_signal;
+		mem_data_in_mux_crtl 	<= Nmem_data_in_mux_crtl;
+		R7_select				<= NR7_select;
+		counter_enable			<= Ncounter_enable;
+		sign_ext_crtl			<= Nsign_ext_crtl;
+		counter_clear			<= Ncounter_clear;
 	end if;
          
 end process;
