@@ -47,8 +47,8 @@ datapath: completeDataPath port map
 		  pc_reg_crtl			=>pc_reg_crtl,
 		  address_crtl			=>address_crtl,
 		  counter_clr			=>counter_clr,
-		  r7_select			=>R7_select
-		  counter_enable		=>counter_enable
+		  r7_select			=>R7_select,
+		  counter_enable		=>counter_enable,
 		  wren				=>wren,
 		  rden				=>rden,
 		  ir_crtl			=>ir_crtl,
