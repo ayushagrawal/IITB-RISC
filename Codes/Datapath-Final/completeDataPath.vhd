@@ -73,7 +73,7 @@ begin
 	
 	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
 	load_ctrl <= not((not ir_out(15)) and (ir_out(14)) and (ir_out(13)) and (not ir_out(12)));			--
-	pc_reg <= pc_reg_ctrl or (data_in_sel(0) and data_in_sel(1) and data_in_sel(2));				--
+	pc_reg <= pc_reg_ctrl or (regWrite and (data_in_sel(0) and data_in_sel(1) and data_in_sel(2)));		         --
 	PC : register16 port map(dataIn => pcIn,
 									 enable => pc_reg_crtl,
 									 dataOut => pc_out ,
