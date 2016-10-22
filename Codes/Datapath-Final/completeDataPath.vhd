@@ -30,7 +30,7 @@ entity completeDataPath is
 		  reset: 	in std_logic;
 		  ir_toFSM: 	out std_logic_vector(3 downto 0);
 		  clock: 	in std_logic;
-		  carry: 	out std_logic;						-- To the FSM
+		  carry: 	out std_logic;						-- To the FSM -
 		  zero: 	out std_logic;						-- To the FSM
 		  add_signal : in std_logic);						-- To the FSM -> error signal from priority encoder
 end entity;
