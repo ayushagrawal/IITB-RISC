@@ -66,17 +66,19 @@ architecture dp of completeDataPath is
 	signal counter_out : std_logic_vector(2 downto 0);
 	signal store_crtl: std_logic;
 	signal load_crtl: std_logic;
+	signal pc_reg : std_logic;
 
 begin
 	
 	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
 	load_ctrl <= not((not ir_out(15)) and (ir_out(14)) and (ir_out(13)) and (not ir_out(12)));			--
+	pc_reg <= pc_reg_ctrl or (pc_source_control and data_in_sel(0) and data_in_sel(1) and data_in_sel(2));
 
 	PC : register16 port map(dataIn => pcIn,
-									 enable => pc_reg_crtl,
-									 dataOut => pc_out ,
-									 clock => clock,
-									 reset => reset);
+				enable => pc_reg,
+				 dataOut => pc_out ,
+				 clock => clock,
+				 reset => reset);
 	adress_mux : mux3 generic map (n => 15) port map(in0 => alu_reg_out,
 							 in1 => pc_out,
 							 in2 => reg_A_out,
@@ -175,14 +177,14 @@ begin
 									 dataOut => alu_reg_out ,
 									 clock => clock,
 									 reset => reset);
-	pc_mux_1 : mux2 generic map (n => 15) port map(in0 => alu_out,
-													 in1 => alu_reg_out, 
-													 sel => pc_source_crtl, 
-													 output => pc_mux_2_in);
-	pc_mux_2 : mux2 generic map (n => 15) port map(in0 => pc_mux_2_in,
-													 in1 => dataIn_rf, 
-													 sel => data_in_sel(0) and data_in_sel(1) and data_in_sel(2), 
-													 output => pcIn);
+	--pc_mux_1 : mux2 generic map (n => 15) port map(in0 => alu_out,
+	--												 in1 => alu_reg_out, 
+	--												 sel => pc_source_crtl, 
+	--												 output => pc_mux_2_in);
+	pc_mux_2 : mux2 generic map (n => 15) port map(in0 => alu_out,
+							in1 => dataIn_rf, 
+							 sel => pc_source_control and data_in_sel(0) and data_in_sel(1) and data_in_sel(2), 
+							 output => pcIn);
 	--and3In : and_gate_3input port map(input => data_in_sel,
 	--											 output => and_out);
 	se9to16 : sign_extender_9bit port map(input => ir_out(8 downto 0),
