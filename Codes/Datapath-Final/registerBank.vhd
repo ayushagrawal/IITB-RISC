@@ -22,9 +22,11 @@ architecture RB of registerBank is
 	signal muxA_in0,muxA_in1,muxA_in2,muxA_in3,muxA_in4,muxA_in5,muxA_in6,muxA_in7,muxB_in0,muxB_in1,muxB_in2,muxB_in3,muxB_in4,muxB_in5,muxB_in6,muxB_in7: std_logic_vector(15 downto 0);
 	signal enable : std_logic_vector(7 downto 0);
 	signal r7_in : std_logic_vector(15 downto 0);
+	signal r7_en : std_logic;
 begin
 	inSel: decoder port map(input => dataInsel, output => enable);
-	
+	r7_en <= (enable(7) and regWrite) or r7_select ; 
+
 	register0 : register16 port map(dataIn => dataIn,enable => (enable(0) and regWrite) ,dataOut => muxA_in0 ,clock => clock_rb,reset => reset);
 	register1 : register16 port map(dataIn => dataIn,enable => (enable(1) and regWrite) ,dataOut => muxA_in1 ,clock => clock_rb,reset => reset);
 	register2 : register16 port map(dataIn => dataIn,enable => (enable(2) and regWrite) ,dataOut => muxA_in2 ,clock => clock_rb,reset => reset);
@@ -32,7 +34,7 @@ begin
 	register4 : register16 port map(dataIn => dataIn,enable => (enable(4) and regWrite) ,dataOut => muxA_in4 ,clock => clock_rb,reset => reset);
 	register5 : register16 port map(dataIn => dataIn,enable => (enable(5) and regWrite) ,dataOut => muxA_in5 ,clock => clock_rb,reset => reset);
 	register6 : register16 port map(dataIn => dataIn,enable => (enable(6) and regWrite) ,dataOut => muxA_in6 ,clock => clock_rb,reset => reset);
-	register7 : register16 port map(dataIn => r7_in ,enable => (enable(7) and regWrite) ,dataOut => muxA_in7 ,clock => clock_rb,reset => reset);
+	register7 : register16 port map(dataIn => r7_in ,enable => -r7_en ,dataOut => muxA_in7 ,clock => clock_rb,reset => reset);
 	
 	r7_mux : mux2 generic map(n => 15) port map(in0 => dataIn, in1 => pc_in, sel => r7_select, output => r7_in);
 	
