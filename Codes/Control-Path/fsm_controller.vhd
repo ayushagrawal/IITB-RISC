@@ -28,10 +28,11 @@ entity fsm_controller is
 		  pc_source_crtl		: out std_logic;
 		  reg_A_sel				: out std_logic;
 		  add_signal			: out std_logic;
-		  mem_data_in_mux_crtl: out std_logic;
+		  mem_data_in_mux_crtl	: out std_logic;
 		  R7_select				: out std_logic;
 		  counter_enable		: out std_logic;
-		  sign_ext_crtl			: out std_logic);
+		  sign_ext_crtl			: out std_logic;
+		  counter_clear			: out std_logic);
 end;
 
 architecture controller of fsm_controller is
@@ -65,6 +66,7 @@ process(opcode,clk,state_sig)
 	variable NR7_select : std_logic;
 	variable Ncounter_enable : std_logic;
 	variable Nsign_ext_crtl : std_logic;
+	variable Ncounter_clear : std_logic;
 begin
    -- default values. 
    nstate := state_sig;
@@ -92,6 +94,7 @@ begin
 	NR7_select := '0';
 	Ncounter_enable := '0';
 	Nsign_ext_crtl := '0';
+	Ncounter_clear := '0';
    -- code the next-state and output
    -- functions using sequential code
    -- compute variables nstate, vY
@@ -136,6 +139,7 @@ begin
 			Nreg_A_crtl := '1';
 			Nreg_B_crtl := '1';
 			Nreg_A_sel := '0';
+			Ncounter_clear := '1';
 			if (opcode = "0000" or opcode = "0010" or opcode = "1100") then
 				-- R type of ADD or NAND ALU instruction
 				nstate := execute;
@@ -177,6 +181,7 @@ begin
 			Nreg_sel_crtl := "11";
 			NregWrite := '1';
 			NR7_select := '0';
+			Npc_source_crtl := '1';
 			nstate := fetch;
 		
 -- STATE 5
@@ -184,6 +189,8 @@ begin
 			-- Control Signals corresponding to ADI excecution
 			Nalu_a_sel := "01";
 			Nalu_b_sel := "01";
+			Nadd_signal := '1';
+			Nsign_ext_crtl := '0';
 			Nenable_carry := '0';
 			Nenable_zero := '0';
 			Nalu_reg_crtl := '1';
@@ -196,6 +203,7 @@ begin
 			Nreg_sel_crtl := "10";
 			NregWrite := '1';
 			NR7_select := '0';
+			Npc_source_crtl := '1';
 			nstate := fetch;
 			
 -- STATE 7
@@ -209,6 +217,7 @@ begin
 			Nreg_A_crtl := '1';
 			Nreg_A_sel := '0';
 			Nadd_signal := '1';
+			Nsign_ext_crtl := '0';
 			if (opcode = "0101") then
 				nstate := SW_1;
 			else
@@ -229,6 +238,8 @@ begin
 			Nreg_sel_crtl := "10";
 			Nreg_data_crtl := "00";
 			NregWrite := '1';
+			Npc_reg_crtl := '1';
+			NR7_select := '0';
 			nstate := fetch;
 			
 -- STATE 10
@@ -243,15 +254,30 @@ begin
 -- STATE 11
 		when BEQ =>
 			-- Control signals for LHI
-			if(zero = '1')
+			if(opcode = "1100") then
+				if(zero = '1')
+					Nalu_a_sel := "00";
+					Nadd_signal := '1';
+					Nenable_carry := '0';
+					Nenable_zero := '0';
+					Nalu_b_sel := "01";
+					Npc_source_crtl := '0';
+					Npc_reg_crtl := '1';
+					sign_ext_crtl := '0';
+				end if;
+				NR7_select := '1';
+				nstate := fetch;
+			else
 				Nalu_a_sel := "00";
 				Nadd_signal := '1';
-				Nalu_b_sel := "10";
+				Nenable_carry := '0';
+				Nenable_zero := '0';
+				Nalu_b_sel := "01";
 				Npc_source_crtl := '0';
 				Npc_reg_crtl := '1';
-				NR7_select := '1';
+				sign_ext_crtl := '0';
+				nstate := fetch;
 			end if;
-			nstate := fetch;
 			
 -- STATE 12
 		when JAL_1 =>
@@ -275,6 +301,7 @@ begin
 			Npc_reg_crtl := '1';
 			Nenable_carry := '0';
 			Nenable_zero := '0';
+			NR7_select := '1';
 			nstate := fetch;
 			
 -- STATE 14
@@ -284,9 +311,12 @@ begin
 			Nrden := '1';
 			Nmem_data_crtl := '1';
 			Ncounter_enable := '1';
-			Nalu_b_sel := "11";
+			Nalu_b_sel := "10";
 			Nalu_a_sel := "01";
 			Nalu_reg_crtl := '1';
+			Nadd_signal := '1';
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 			nstate := LM_2;
 		
 -- STATE 15
@@ -297,18 +327,21 @@ begin
 			Nreg_A_sel := '1';
 			Nreg_A_crtl := '1';
 			Ncounter_enable := '1';
+			Npc_source_crtl := '1';
 			nstate := fetch;
 		
 -- STATE 16
 		when SM_1 =>
-			Nmem_data_crtl := '1';
-			Nmem_data_in_mux_crtl := '0';
+			Nmem_data_in_mux_crtl := '1';
 			Nwren := '1';
 			Ncounter_enable := '1';
-			Nalu_b_sel := "11";
+			Nalu_b_sel := "10";
 			Nalu_a_sel := "01";
 			Nalu_reg_crtl := '1';
 			Naddress_crtl := "10";
+			Nadd_signal := '1';
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 			nstate := LM_2;
 				
    end case;          
@@ -345,10 +378,11 @@ begin
 			pc_source_crtl			<= Npc_source_crtl;
 			reg_A_sel				<= Nreg_A_sel;
 			add_signal				<= Nadd_signal;
-			mem_data_in_mux_crtl <= Nmem_data_in_mux_crtl;
+			mem_data_in_mux_crtl 	<= Nmem_data_in_mux_crtl;
 			R7_select				<= NR7_select;
 			counter_enable			<= Ncounter_enable;
 			sign_ext_crtl			<= Nsign_ext_crtl;
+			counter_clear			<= Ncounter_clear;
 		end if;
 	end if;
          
