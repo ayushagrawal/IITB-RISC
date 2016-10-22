@@ -1,0 +1,161 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "ir_toFSM[0]",
+					"strict" : false
+				},
+				{
+					"name" : "ir_toFSM[1]",
+					"strict" : false
+				},
+				{
+					"name" : "ir_toFSM[2]",
+					"strict" : false
+				},
+				{
+					"name" : "ir_toFSM[3]",
+					"strict" : false
+				},
+				{
+					"name" : "carry",
+					"strict" : false
+				},
+				{
+					"name" : "zero",
+					"strict" : false
+				},
+				{
+					"name" : "add_signal",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				},
+				{
+					"name" : "clock",
+					"strict" : false
+				},
+				{
+					"name" : "ir_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "enable_carry",
+					"strict" : false
+				},
+				{
+					"name" : "alu_b_sel[0]",
+					"strict" : false
+				},
+				{
+					"name" : "alu_b_sel[1]",
+					"strict" : false
+				},
+				{
+					"name" : "alu_a_sel[1]",
+					"strict" : false
+				},
+				{
+					"name" : "alu_a_sel[0]",
+					"strict" : false
+				},
+				{
+					"name" : "enable_zero",
+					"strict" : false
+				},
+				{
+					"name" : "wren",
+					"strict" : false
+				},
+				{
+					"name" : "store_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "rden",
+					"strict" : false
+				},
+				{
+					"name" : "load_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "mem_data_in_mux_ctrl",
+					"strict" : false
+				},
+				{
+					"name" : "address_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "reg_A_sel",
+					"strict" : false
+				},
+				{
+					"name" : "reg_A_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "pc_source_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "reg_data_crtl[1]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_data_crtl[0]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_sel_crtl[1]",
+					"strict" : false
+				},
+				{
+					"name" : "reg_sel_crtl[0]",
+					"strict" : false
+				},
+				{
+					"name" : "pc_reg_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "B_sel_Rb",
+					"strict" : false
+				},
+				{
+					"name" : "reg_B_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "counter_clr",
+					"strict" : false
+				},
+				{
+					"name" : "counter_enable",
+					"strict" : false
+				},
+				{
+					"name" : "alu_reg_crtl",
+					"strict" : false
+				},
+				{
+					"name" : "regWrite",
+					"strict" : false
+				},
+				{
+					"name" : "r7_select",
+					"strict" : false
+				},
+				{
+					"name" : "mem_data_crtl",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

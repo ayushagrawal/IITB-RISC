@@ -66,7 +66,6 @@ set_global_assignment -name VHDL_FILE register_1bit.vhd
 set_global_assignment -name VHDL_FILE nand_logic.vhd
 set_global_assignment -name VHDL_FILE memory.vhd
 set_global_assignment -name VHDL_FILE LH.vhd
-set_global_assignment -name VHDL_FILE decoder_3to8.vhd
 set_global_assignment -name VHDL_FILE decoder.vhd
 set_global_assignment -name VHDL_FILE datapathComponents.vhd
 set_global_assignment -name VHDL_FILE components_RB.vhd

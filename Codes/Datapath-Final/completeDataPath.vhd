@@ -83,7 +83,8 @@ begin
 								 data => data_in, 
 								 wren => (wren and (one_bit_crtl(0) or store_crtl)), 
 								 rden => (rden and (one_bit_crtl(0) or load_crtl)),
-								 q => mem_out);
+								 q => mem_out,
+								 clock => clock);
 	IR : register16 port map(dataIn => mem_out, 
 									 enable => ir_crtl, 
 									 dataOut => ir_out ,
