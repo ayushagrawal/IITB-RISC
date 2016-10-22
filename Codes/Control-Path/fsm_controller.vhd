@@ -255,7 +255,7 @@ begin
 		when BEQ =>
 			-- Control signals for LHI
 			if(opcode = "1100") then
-				if(zero = '1')
+				if(zero = '1') then
 					Nalu_a_sel := "00";
 					Nadd_signal := '1';
 					Nenable_carry := '0';
@@ -263,7 +263,7 @@ begin
 					Nalu_b_sel := "01";
 					Npc_source_crtl := '0';
 					Npc_reg_crtl := '1';
-					sign_ext_crtl := '0';
+					Nsign_ext_crtl := '0';
 				end if;
 				NR7_select := '1';
 				nstate := fetch;
@@ -276,7 +276,7 @@ begin
 				Npc_source_crtl := '0';
 				Npc_reg_crtl := '1';
 				sign_ext_crtl := '0';
-				nstate := fetch;
+				Nnstate := fetch;
 			end if;
 			
 -- STATE 12
