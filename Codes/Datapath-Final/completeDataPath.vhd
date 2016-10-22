@@ -80,7 +80,7 @@ begin
 									 reset => reset);
 	adress_mux : mux3 generic map (n => 15) port map(in0 => alu_reg_out,
 							 in1 => pc_out,
-							 in2 => reg_A_out
+							 in2 => reg_A_out,
 							 sel => address_crtl, 
 							 output => mem_address);
 	RAM : memory port map(address => mem_address,
