@@ -30,7 +30,8 @@ entity fsm_controller is
 		  add_signal			: out std_logic;
 		  mem_data_in_mux_crtl: out std_logic;
 		  R7_select				: out std_logic;
-		  counter_enable		: out std_logic);
+		  counter_enable		: out std_logic;
+		  sign_ext_crtl			: out std_logic);
 end;
 
 architecture controller of fsm_controller is
@@ -63,6 +64,7 @@ process(opcode,clk,state_sig)
 	variable Nmem_data_in_mux_crtl : std_logic;
 	variable NR7_select : std_logic;
 	variable Ncounter_enable : std_logic;
+	variable Nsign_ext_crtl : std_logic;
 begin
    -- default values. 
    nstate := state_sig;
@@ -89,6 +91,7 @@ begin
 	Nmem_data_in_mux_crtl := '0';
 	NR7_select := '0';
 	Ncounter_enable := '0';
+	Nsign_ext_crtl := '0';
    -- code the next-state and output
    -- functions using sequential code
    -- compute variables nstate, vY
@@ -116,6 +119,7 @@ begin
 			Nalu_reg_crtl := '1';
 			Nenable_carry := '0';
 			Nenable_zero := '0';
+			Nrden := '1';
 			if(opcode = "0011") then
 				nstate := LHI_1;
 			elsif(opcode = "1000") then
@@ -180,6 +184,8 @@ begin
 			-- Control Signals corresponding to ADI excecution
 			Nalu_a_sel := "01";
 			Nalu_b_sel := "01";
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 			Nalu_reg_crtl := '1';
 			nstate := store;
 			
@@ -197,8 +203,12 @@ begin
 			-- Control signals for LHI
 			Nalu_reg_crtl := '1';
 			Nalu_b_sel := "00";
+			Nalu_a_sel := "10";
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 			Nreg_A_crtl := '1';
-			Nreg_A_sel := '1';
+			Nreg_A_sel := '0';
+			Nadd_signal := '1';
 			if (opcode = "0101") then
 				nstate := SW_1;
 			else
@@ -211,6 +221,7 @@ begin
 			Naddress_crtl := "00";
 			Nmem_data_crtl := '1';
 			nstate := LW_3;
+			Nrden := '1';
 			
 -- STATE 9
 		when LW_3 =>
@@ -225,16 +236,21 @@ begin
 			-- Control signals for LHI
 			Naddress_crtl := "00";
 			Nwren := '1';
+			Nmem_data_in_mux_crtl := '0';
+			NR7_select := '1';
 			nstate := fetch;
 		
 -- STATE 11
 		when BEQ =>
 			-- Control signals for LHI
-			Nalu_a_sel := "00";
-			Nadd_signal := '1';
-			Nalu_b_sel := "01";
-			Npc_source_crtl := '0';
-			Npc_reg_crtl := '1';
+			if(zero = '1')
+				Nalu_a_sel := "00";
+				Nadd_signal := '1';
+				Nalu_b_sel := "10";
+				Npc_source_crtl := '0';
+				Npc_reg_crtl := '1';
+				NR7_select := '1';
+			end if;
 			nstate := fetch;
 			
 -- STATE 12
@@ -254,15 +270,18 @@ begin
 			-- Control signals for LHI
 			Nalu_a_sel := "11";
 			Nadd_signal := '1';
-			Nalu_b_sel := "01";
+			Nalu_b_sel := "00";
 			Npc_source_crtl := '0';
 			Npc_reg_crtl := '1';
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 			nstate := fetch;
 			
 -- STATE 14
 		when LM_1 =>
 			-- Control signals for load multiple
 			Naddress_crtl := "10";
+			Nrden := '1';
 			Nmem_data_crtl := '1';
 			Ncounter_enable := '1';
 			Nalu_b_sel := "11";
@@ -283,6 +302,8 @@ begin
 -- STATE 16
 		when SM_1 =>
 			Nmem_data_crtl := '1';
+			Nmem_data_in_mux_crtl := '0';
+			Nwren := '1';
 			Ncounter_enable := '1';
 			Nalu_b_sel := "11";
 			Nalu_a_sel := "01";
@@ -327,6 +348,7 @@ begin
 			mem_data_in_mux_crtl <= Nmem_data_in_mux_crtl;
 			R7_select				<= NR7_select;
 			counter_enable			<= Ncounter_enable;
+			sign_ext_crtl			<= Nsign_ext_crtl;
 		end if;
 	end if;
          
