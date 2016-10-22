@@ -70,6 +70,7 @@ architecture dp of completeDataPath is
 	signal pc_reg : std_logic;
 	signal sign_mux_out : std_logic_vector(15 downto 0);  		-- output of sign extender mux
 	signal cntr_out_16bit : std_logic_vector(15 downto 0);	-- 16 bit counter output
+	signal reg7_ctrl : std_logic;
 begin
 	
 	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
@@ -113,6 +114,8 @@ begin
 												 in3 => ir_out(5 downto 3),
 												 sel => reg_sel_crtl,
 												 output => data_in_sel);
+	
+	reg7_ctrl <= r7_select or (not (pc_source_control and data_in_sel(0) and data_in_sel(1) and data_in_sel(2)));	---
 	RF: registerBank port map(	dataOut_A => RF_to_regA_in,
 									  dataOut_B => reg_B_in,
 									  clock_rb  => clock,
@@ -123,7 +126,7 @@ begin
 									  reset	   => reset,
 									  regWrite  => (regWrite and (one_bit_crtl(0) or load_crtl)),
 									  pc_in		=> pc_out,
-									  r7_select => r7_select);
+									  r7_select => reg7_ctrl);
 	
 	RB_B_mux : mux2 generic map (n => 2) port map(in0 => counter_out,
 								in1 => ir_out(8 downto 6),
