@@ -19,6 +19,6 @@ begin
 sel0 <= (others => sel(0)) ;
 sel1 <= (others => sel(1)) ;
 
-output <= ((not sel0) and (not sel1) and in0) or ((not sel1) and sel0 and in1) or (sel1 and (not sel0) and in2) or (sel0 and sel1 and in3);
+output <= ((not sel0) and (not sel1) and in0) or ((not sel0) and sel1 and in1) or (sel0 and (not sel1) and in2) or (sel0 and sel1 and in3);
 
 end Behave;

@@ -23,17 +23,20 @@ architecture RB of registerBank is
 	signal enable : std_logic_vector(7 downto 0);
 	signal r7_in : std_logic_vector(15 downto 0);
 	signal r7_en : std_logic;
+	signal en,re : std_logic_vector(6 downto 0);
 begin
 	inSel: decoder port map(input => dataInsel, output => enable);
 	r7_en <= (enable(7) and regWrite) or r7_select ; 
-
-	register0 : register16 port map(dataIn => dataIn,enable => (enable(0) and regWrite) ,dataOut => muxA_in0 ,clock => clock_rb,reset => reset);
-	register1 : register16 port map(dataIn => dataIn,enable => (enable(1) and regWrite) ,dataOut => muxA_in1 ,clock => clock_rb,reset => reset);
-	register2 : register16 port map(dataIn => dataIn,enable => (enable(2) and regWrite) ,dataOut => muxA_in2 ,clock => clock_rb,reset => reset);
-	register3 : register16 port map(dataIn => dataIn,enable => (enable(3) and regWrite) ,dataOut => muxA_in3 ,clock => clock_rb,reset => reset);
-	register4 : register16 port map(dataIn => dataIn,enable => (enable(4) and regWrite) ,dataOut => muxA_in4 ,clock => clock_rb,reset => reset);
-	register5 : register16 port map(dataIn => dataIn,enable => (enable(5) and regWrite) ,dataOut => muxA_in5 ,clock => clock_rb,reset => reset);
-	register6 : register16 port map(dataIn => dataIn,enable => (enable(6) and regWrite) ,dataOut => muxA_in6 ,clock => clock_rb,reset => reset);
+	en <= enable(6 downto 0) and re; 
+	re <= (others => regWrite);
+	
+	register0 : register16 port map(dataIn => dataIn,enable => en(0) ,dataOut => muxA_in0 ,clock => clock_rb,reset => reset);
+	register1 : register16 port map(dataIn => dataIn,enable => en(1) ,dataOut => muxA_in1 ,clock => clock_rb,reset => reset);
+	register2 : register16 port map(dataIn => dataIn,enable => en(2) ,dataOut => muxA_in2 ,clock => clock_rb,reset => reset);
+	register3 : register16 port map(dataIn => dataIn,enable => en(3) ,dataOut => muxA_in3 ,clock => clock_rb,reset => reset);
+	register4 : register16 port map(dataIn => dataIn,enable => en(4) ,dataOut => muxA_in4 ,clock => clock_rb,reset => reset);
+	register5 : register16 port map(dataIn => dataIn,enable => en(5) ,dataOut => muxA_in5 ,clock => clock_rb,reset => reset);
+	register6 : register16 port map(dataIn => dataIn,enable => en(6) ,dataOut => muxA_in6 ,clock => clock_rb,reset => reset);
 	register7 : register16 port map(dataIn => r7_in ,enable => r7_en ,dataOut => muxA_in7 ,clock => clock_rb,reset => reset);
 	
 	r7_mux : mux2 generic map(n => 15) port map(in0 => dataIn, in1 => pc_in, sel => r7_select, output => r7_in);

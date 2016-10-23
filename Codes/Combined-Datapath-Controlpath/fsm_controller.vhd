@@ -140,6 +140,8 @@ begin
 			Nreg_B_ctrl := '1';
 			Nreg_A_sel := '0';
 			Ncounter_clear := '1';
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 			if (opcode = "0000" or opcode = "0010" or opcode = "1100") then
 				-- R type of ADD or NAND ALU instruction
 				nstate := execute;
@@ -177,12 +179,18 @@ begin
 -- STATE 4
 		when store =>
 			-- Control signals corresponding to store in register file
-			Nreg_data_ctrl := "01";
-			Nreg_sel_ctrl := "11";
+			if (opcode = "0001") then
+				Nreg_sel_ctrl := "01";
+			else
+				Nreg_sel_ctrl := "11";
+			end if;
 			NregWrite := '1';
 			NR7_select := '0';
 			Npc_source_ctrl := '1';
 			nstate := fetch;
+			Nreg_data_ctrl := "01";
+			Nenable_carry := '0';
+			Nenable_zero := '0';
 		
 -- STATE 5
 		when adi_1 =>
@@ -357,6 +365,7 @@ begin
 		else
 			state_sig <= nstate;
 		end if;
+	end if;
 		 -- Finally enter the output control signals here as: x <= nX
 		reset_to_DataPath 	<= Nreset_to_DataPath;
 		pc_reg_ctrl				<= Npc_reg_ctrl;
@@ -383,7 +392,6 @@ begin
 		counter_enable			<= Ncounter_enable;
 		sign_ext_ctrl			<= Nsign_ext_ctrl;
 		counter_clr			<= Ncounter_clear;
-	end if;
          
 end process;
 end;

@@ -66,6 +66,7 @@ architecture dp of completeDataPath is
 	signal counter_out : std_logic_vector(2 downto 0);
 	signal store_ctrl: std_logic;
 	signal load_ctrl: std_logic;
+	signal pc_mux_2_sel,ram_rden,ram_wren,rf_write,rb_b_mux_sel : std_logic;
 
 begin
 	
@@ -82,10 +83,12 @@ begin
 							 in2 => reg_A_out,
 							 sel => address_ctrl, 
 							 output => mem_address);
+	ram_wren <= (wren and (one_bit_ctrl(0) or store_ctrl));
+	ram_rden <= (rden and (one_bit_ctrl(0) or load_ctrl));
 	RAM : memory port map(address => mem_address,
 								 data => data_in, 
-								 wren => (wren and (one_bit_ctrl(0) or store_ctrl)), 
-								 rden => (rden and (one_bit_ctrl(0) or load_ctrl)),
+								 wren => ram_wren, 
+								 rden => ram_rden,
 								 q => mem_out,
 								 clock => clock);
 	IR : register16 port map(dataIn => mem_out, 
@@ -109,6 +112,8 @@ begin
 												 in3 => ir_out(5 downto 3),
 												 sel => reg_sel_ctrl,
 												 output => data_in_sel);
+												 
+	rf_write <= (regWrite and (one_bit_ctrl(0) or load_ctrl));
 	RF: registerBank port map(	dataOut_A => RF_to_regA_in,
 									  dataOut_B => reg_B_in,
 									  clock_rb  => clock,
@@ -117,13 +122,14 @@ begin
 									  dataIn    => dataIn_rf,
 									  dataInsel => data_in_sel,
 									  reset	   => reset,
-									  regWrite  => (regWrite and (one_bit_ctrl(0) or load_ctrl)),
+									  regWrite  => rf_write,
 									  pc_in		=> pc_out,
 									  r7_select => r7_select);
 	
+	rb_b_mux_sel <= ((not counter_enable) or one_bit_ctrl(0));
 	RB_B_mux : mux2 generic map (n => 2) port map(in0 => counter_out,
 								in1 => ir_out(8 downto 6),
-								sel => ((not counter_enable) or one_bit_ctrl(0)),
+								sel => rb_b_mux_sel,
 												  output=> regSel_B);
 	
 	RF_to_regA_mux : mux2  generic map (n => 15) port map (in0 => RF_to_regA_in ,			-- changes
@@ -179,9 +185,10 @@ begin
 													 in1 => alu_reg_out, 
 													 sel => pc_source_ctrl, 
 													 output => pc_mux_2_in);
+	pc_mux_2_sel <= data_in_sel(0) and data_in_sel(1) and data_in_sel(2);												 
 	pc_mux_2 : mux2 generic map (n => 15) port map(in0 => pc_mux_2_in,
 													 in1 => dataIn_rf, 
-													 sel => data_in_sel(0) and data_in_sel(1) and data_in_sel(2), 
+													 sel => pc_mux_2_sel, 
 													 output => pcIn);
 	--and3In : and_gate_3input port map(input => data_in_sel,
 	--											 output => and_out);
