@@ -7,6 +7,8 @@ entity fsm_controller is
 		  carry					: in std_logic;
 		  zero					: in std_logic;
 		  clk						: in std_logic;
+		  lst_two_op			: in std_logic_vector(1 downto 0);
+		  counter_overFlow 	: in std_logic;
 		  -- Add control signals here
 		  reset_to_DataPath 	: out std_logic;
 		  pc_reg_ctrl			: out std_logic;
@@ -31,8 +33,9 @@ entity fsm_controller is
 		  mem_data_in_mux_ctrl	: out std_logic;
 		  R7_select				: out std_logic;
 		  counter_enable		: out std_logic;
-		  sign_ext_ctrl			: out std_logic;
-		  counter_clr			: out std_logic);
+		  sign_ext_ctrl		: out std_logic;
+		  counter_clr			: out std_logic;
+		  mc_ctrl				: out std_logic);
 end;
 
 architecture controller of fsm_controller is
@@ -40,7 +43,7 @@ architecture controller of fsm_controller is
 	type states is (reset_state,fetch,decode,execute,store,adi_1,LHI_1,LW_1,LW_2,LW_3,SW_1,BEQ,JAL_1,JLR_1,LM_1,LM_2,SM_1);
   signal state_sig: states;
 begin
-process(opcode,clk,state_sig,zero)
+process(opcode,clk,state_sig,zero,lst_two_op)
    variable nstate: states;
 	variable Nreset_to_DataPath : std_logic;
 	variable Npc_reg_ctrl : std_logic;
@@ -67,6 +70,7 @@ process(opcode,clk,state_sig,zero)
 	variable Ncounter_enable : std_logic;
 	variable Nsign_ext_ctrl : std_logic;
 	variable Ncounter_clear : std_logic;
+	variable Nmc_ctrl : std_logic;
 begin
    -- default values. 
    nstate := state_sig;
@@ -95,6 +99,7 @@ begin
 	Ncounter_enable := '0';
 	Nsign_ext_ctrl := '0';
 	Ncounter_clear := '0';
+	Nmc_ctrl := '1';
    -- code the next-state and output
    -- functions using sequential code
    -- compute variables nstate, vY
@@ -123,13 +128,7 @@ begin
 			Nenable_carry := '0';
 			Nenable_zero := '0';
 			Nrden := '1';
-			if(opcode = "0011") then
-				nstate := LHI_1;
-			elsif(opcode = "1000") then
-				nstate := JAL_1;
-			else
-				nstate := decode;		
-			end if;
+			nstate := decode;		
 			
 -- STATE 2
 		when decode =>
@@ -157,8 +156,13 @@ begin
 			elsif (opcode = "0111") then
 				-- J type of Store Multiple Instruction
 				nstate := SM_1;
+				Nmc_ctrl := '0';
 			elsif (opcode = "1001") then
 				-- I type of Jump and link instrcution
+				nstate := JAL_1;
+			elsif(opcode = "0011") then
+				nstate := LHI_1;
+			elsif(opcode = "1000") then
 				nstate := JAL_1;
 			else
 				nstate := fetch;
@@ -172,8 +176,12 @@ begin
 			Nalu_reg_ctrl := '1';
 			if (opcode = "1100") then
 				nstate := BEQ;
-			else
+			elsif((lst_two_op = "00") or (lst_two_op = "10" and carry = '1') or (lst_two_op = "01" and zero = '1')) then
 				nstate := store;
+			else
+				NR7_select := '1';
+				Npc_source_ctrl := '0';
+				nstate := fetch;
 			end if;
 			
 -- STATE 4
@@ -185,12 +193,15 @@ begin
 				Nreg_sel_ctrl := "11";
 			end if;
 			NregWrite := '1';
-			NR7_select := '0';
+			NR7_select := '1';
 			Npc_source_ctrl := '1';
 			nstate := fetch;
 			Nreg_data_ctrl := "01";
 			Nenable_carry := '0';
 			Nenable_zero := '0';
+			if(opcode = "0111") then
+				NregWrite := '0';
+			end if;
 		
 -- STATE 5
 		when adi_1 =>
@@ -210,7 +221,7 @@ begin
 			Nreg_data_ctrl := "10";
 			Nreg_sel_ctrl := "10";
 			NregWrite := '1';
-			NR7_select := '0';
+			NR7_select := '1';
 			Npc_source_ctrl := '1';
 			nstate := fetch;
 			
@@ -247,7 +258,7 @@ begin
 			Nreg_data_ctrl := "00";
 			NregWrite := '1';
 			Npc_reg_ctrl := '1';
-			NR7_select := '0';
+			NR7_select := '1';
 			nstate := fetch;
 			
 -- STATE 10
@@ -285,6 +296,7 @@ begin
 				Npc_reg_ctrl := '1';
 				Nsign_ext_ctrl := '1';
 				nstate := fetch;
+				NR7_select := '1';
 			end if;
 			
 -- STATE 12
@@ -318,31 +330,50 @@ begin
 			Naddress_ctrl := "10";
 			Nrden := '1';
 			Nmem_data_ctrl := '1';
-			Ncounter_enable := '1';
+			Ncounter_enable := '0';
 			Nalu_b_sel := "10";
 			Nalu_a_sel := "01";
 			Nalu_reg_ctrl := '1';
 			Nadd_signal := '1';
 			Nenable_carry := '0';
 			Nenable_zero := '0';
+			Nreg_sel_ctrl := "00";
 			nstate := LM_2;
 		
 -- STATE 15
 		when LM_2 =>
 			Nreg_data_ctrl := "00";
 			Nreg_sel_ctrl := "00";
-			NregWrite := '1';
 			Nreg_A_sel := '1';
 			Nreg_A_ctrl := '1';
 			Ncounter_enable := '1';
-			Npc_source_ctrl := '1';
-			nstate := fetch;
+			if(opcode = "0110") then
+				Npc_source_ctrl := '1';
+				if(counter_overFlow = '1') then
+					nstate := fetch;
+					NR7_select := '1';
+				else 
+					nstate := LM_1;
+					NregWrite := '1';
+				end if;
+			else
+				Npc_source_ctrl := '0';
+				if(counter_overFlow = '1') then
+					nstate := store;
+					NR7_select := '0';
+				else 
+					nstate := SM_1;
+					NregWrite := '0';
+					Nmc_ctrl := '0';
+					Nreg_B_ctrl := '1';
+				end if;
+			end if;
 		
 -- STATE 16
 		when SM_1 =>
 			Nmem_data_in_mux_ctrl := '1';
 			Nwren := '1';
-			Ncounter_enable := '1';
+			Ncounter_enable := '0';
 			Nalu_b_sel := "10";
 			Nalu_a_sel := "01";
 			Nalu_reg_ctrl := '1';
@@ -350,6 +381,7 @@ begin
 			Nadd_signal := '1';
 			Nenable_carry := '0';
 			Nenable_zero := '0';
+			Nmc_ctrl := '0';
 			nstate := LM_2;
 				
    end case;          
@@ -392,6 +424,7 @@ begin
 		counter_enable			<= Ncounter_enable;
 		sign_ext_ctrl			<= Nsign_ext_ctrl;
 		counter_clr			<= Ncounter_clear;
+		mc_ctrl 					<= Nmc_ctrl;
          
 end process;
 end;

@@ -84,17 +84,17 @@ begin
 	temp_zero_en <= enable_zero and ((op2in(1) and (not op2in(0)) and carry_flag1) or ((not op2in(1)) and op2in(0) and zero_flag1) or (not(op2in(1) xor op2in(0)))); 
 	
 	carry_flag <= carry_flag1;
+	zero_flag <= zero_flag1;
 	
 	reg1 : register_1bit port map (dataIn => carry_temp,enable => temp_carry_en ,dataOut => carry_flag1,clock => clock ,reset => reset);	
 	reg2 : register_1bit port map (dataIn => zero_temp,enable => temp_zero_en, dataOut => zero_flag1,clock => clock, reset => reset);
 	
-	process(adder_output,carry_flag1,zero_flag1,nand_output,op2in,op4in,add_signal)
+	process(adder_output,nand_output,op2in,op4in,add_signal)
 	variable zero_var 	 : 	std_logic;
 	variable output_var  : 	std_logic_vector(15 downto 0);
 
 	begin
 	output_var := x"0000";
-	zero_var := '0';
 if (add_signal = '1') then											-- for updating the PC
 	output_var := adder_output(15 downto 0) ;
 
@@ -102,43 +102,34 @@ elsif (add_signal = '0') then
 	if (op4in = "0000") then										-- add operations
 		if(op2in = "00") then										-- ADD
 			output_var := adder_output(15 downto 0) ;
-			zero_var  :=  zero_flag1;
 
 		elsif(op2in = "10") then									-- ADC (??)														
 				output_var := adder_output(15 downto 0) ;
-				zero_var  :=  zero_flag1;
 			
 		elsif(op2in = "01") then									-- ADZ (??)
 				output_var := adder_output(15 downto 0) ;
-				zero_var  :=  zero_flag1;
 			
 		end if;
 
 	elsif (op4in = "0001") then										-- ADI
 		output_var := adder_output(15 downto 0) ;
-		zero_var   := zero_flag1;
 		
 	elsif (op4in = "0010") then							       		 -- NAND operations
 		if (op2in = "00") then										 -- NDU
 		output_var := nand_output ;	
-		zero_var   := zero_flag1;
 		
 		elsif (op2in = "10") then									  -- NDC (??)
 				output_var := nand_output ;	
-				zero_var   := zero_flag1;
 
 		elsif (op2in = "01") then									  -- NDZ (??)
 				output_var := nand_output ;	
-				zero_var   := zero_flag1;
 
 		end if;
 	
 	elsif (op4in = "1100") then									-- BEQ
-		zero_var := zero_flag1;
 	end if;
 end if;
 
 	rc         <= output_var ;
-	zero_flag  <= zero_var ;
 end process ;
 end formulas ;

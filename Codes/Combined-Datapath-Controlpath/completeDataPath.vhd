@@ -10,6 +10,7 @@ entity completeDataPath is
 		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
+	     sign_ext_ctrl : in std_logic;
 		  wren: 	in std_logic;
 		  rden: in std_logic;
 		  ir_ctrl: 	in std_logic;
@@ -30,9 +31,13 @@ entity completeDataPath is
 		  reset: 	in std_logic;
 		  ir_toFSM: 	out std_logic_vector(3 downto 0);
 		  clock: 	in std_logic;
-		  carry: 	out std_logic;						-- To the FSM
+		  carry: 	out std_logic;						-- To the FSM -
 		  zero: 	out std_logic;						-- To the FSM
-		  add_signal : in std_logic);						-- To the FSM -> error signal from priority encoder
+		  add_signal : in std_logic;
+		  lst_two_op : out std_logic_vector(1 downto 0);
+		  mem_clock : in std_logic;
+		  counter_overFlow : out std_logic;
+		  mc_ctrl 		: in std_logic);						-- To the FSM -> error signal from priority encoder
 end entity;
 
 architecture dp of completeDataPath is
@@ -66,36 +71,42 @@ architecture dp of completeDataPath is
 	signal counter_out : std_logic_vector(2 downto 0);
 	signal store_ctrl: std_logic;
 	signal load_ctrl: std_logic;
-	signal pc_mux_2_sel,ram_rden,ram_wren,rf_write,rb_b_mux_sel : std_logic;
-
+	signal pc_reg : std_logic;
+	signal sign_mux_out : std_logic_vector(15 downto 0);  		-- output of sign extender mux
+	signal cntr_out_16bit : std_logic_vector(15 downto 0);	-- 16 bit counter output
+	signal rf_regWrite,ram_wr,ram_rd,rb_b_mux_sel,pc_mux_sel : std_logic;
+	signal r7_select1 : std_logic;
 begin
 	
 	store_ctrl <= not((not ir_out(15))and (ir_out(14)) and (ir_out(13)) and (ir_out(12)));				--
 	load_ctrl <= not((not ir_out(15)) and (ir_out(14)) and (ir_out(13)) and (not ir_out(12)));			--
+	pc_reg <= pc_reg_ctrl or (pc_source_ctrl and data_in_sel(0) and data_in_sel(1) and data_in_sel(2));
 
 	PC : register16 port map(dataIn => pcIn,
-									 enable => pc_reg_ctrl,
-									 dataOut => pc_out ,
-									 clock => clock,
-									 reset => reset);
+				enable => pc_reg,
+				 dataOut => pc_out ,
+				 clock => clock,
+				 reset => reset);
 	adress_mux : mux3 generic map (n => 15) port map(in0 => alu_reg_out,
 							 in1 => pc_out,
 							 in2 => reg_A_out,
 							 sel => address_ctrl, 
 							 output => mem_address);
-	ram_wren <= (wren and (one_bit_ctrl(0) or store_ctrl));
-	ram_rden <= (rden and (one_bit_ctrl(0) or load_ctrl));
+	ram_wr <= (wren and (one_bit_ctrl(0) or store_ctrl));
+	ram_rd <= (rden and (one_bit_ctrl(0) or load_ctrl));
 	RAM : memory port map(address => mem_address,
 								 data => data_in, 
-								 wren => ram_wren, 
-								 rden => ram_rden,
+								 wren => ram_wr, 
+								 rden => ram_rd,
 								 q => mem_out,
-								 clock => clock);
+								 clock => mem_clock);
 	IR : register16 port map(dataIn => mem_out, 
 									 enable => ir_ctrl, 
 									 dataOut => ir_out ,
 									 clock => clock,
 									 reset => reset);
+									 
+	lst_two_op <= ir_out(1 downto 0);
 	Memory_data : register16 port map(dataIn => mem_out, 
 											 enable => mem_data_ctrl,
 											 dataOut => mem_data_out,
@@ -113,7 +124,7 @@ begin
 												 sel => reg_sel_ctrl,
 												 output => data_in_sel);
 												 
-	rf_write <= (regWrite and (one_bit_ctrl(0) or load_ctrl));
+	rf_regWrite <= regWrite and (one_bit_ctrl(0) or load_ctrl);											 
 	RF: registerBank port map(	dataOut_A => RF_to_regA_in,
 									  dataOut_B => reg_B_in,
 									  clock_rb  => clock,
@@ -122,18 +133,21 @@ begin
 									  dataIn    => dataIn_rf,
 									  dataInsel => data_in_sel,
 									  reset	   => reset,
-									  regWrite  => rf_write,
+									  regWrite  => rf_regWrite,
 									  pc_in		=> pc_out,
-									  r7_select => r7_select);
+									  r7_select => r7_select1);
 	
-	rb_b_mux_sel <= ((not counter_enable) or one_bit_ctrl(0));
+	r7_select1 <= ((not counter_enable) or (not one_bit_ctrl(0))) and (r7_select and (not(pc_source_ctrl and data_in_sel(0) and data_in_sel(1) and data_in_sel(2))));
+	
+	rb_b_mux_sel <= (mc_ctrl and ((not counter_enable) or one_bit_ctrl(0)));
+	
 	RB_B_mux : mux2 generic map (n => 2) port map(in0 => counter_out,
 								in1 => ir_out(8 downto 6),
 								sel => rb_b_mux_sel,
-												  output=> regSel_B);
+								output=> regSel_B);
 	
 	RF_to_regA_mux : mux2  generic map (n => 15) port map (in0 => RF_to_regA_in ,			-- changes
-						  in1 => alu_out,
+						  in1 => alu_reg_out,
 						  sel => reg_A_sel,
 						  output => reg_A_in);
 
@@ -152,15 +166,21 @@ begin
 							in1 => reg_B_out,
 							sel => mem_data_in_mux_ctrl,
 						        output => data_in );	
+	
+	sign_extend_mux : mux2 generic map (n => 15) port map(in0 => se6to16_out,			-- changes
+							      in1 => se9to16_out,
+							      sel => sign_ext_ctrl,
+							      output => sign_mux_out);
+
 	alu_A_mux: mux4 generic map (n => 15) port map(in0 => pc_out,					-- changes
 												  in1 => reg_A_out,
-												  in2 => se6to16_out,
+												  in2 => sign_mux_out,
 												  in3 => x"0000",
 												  sel => alu_a_sel, 
 												  output => alu_a_in);
 	alu_B_mux : mux4 generic map (n => 15) port map(in0 => reg_B_out,					  	-- changes
-													in1 => se6to16_out,
-													in2 => se9to16_out,
+													in1 => sign_mux_out,
+													in2 => cntr_out_16bit,
 													in3 => "0000000000000001", 
 													sel => alu_b_sel, 
 													output => alu_b_in);
@@ -181,15 +201,12 @@ begin
 									 dataOut => alu_reg_out ,
 									 clock => clock,
 									 reset => reset);
-	pc_mux_1 : mux2 generic map (n => 15) port map(in0 => alu_out,
-													 in1 => alu_reg_out, 
-													 sel => pc_source_ctrl, 
-													 output => pc_mux_2_in);
-	pc_mux_2_sel <= data_in_sel(0) and data_in_sel(1) and data_in_sel(2);												 
-	pc_mux_2 : mux2 generic map (n => 15) port map(in0 => pc_mux_2_in,
-													 in1 => dataIn_rf, 
-													 sel => pc_mux_2_sel, 
-													 output => pcIn);
+									 
+	pc_mux_sel <= pc_source_ctrl and data_in_sel(0) and data_in_sel(1) and data_in_sel(2);
+	pc_mux : mux2 generic map (n => 15) port map(in0 => alu_out,
+							in1 => dataIn_rf, 
+							 sel => pc_mux_sel, 
+							 output => pcIn);
 	--and3In : and_gate_3input port map(input => data_in_sel,
 	--											 output => and_out);
 	se9to16 : sign_extender_9bit port map(input => ir_out(8 downto 0),
@@ -215,4 +232,8 @@ begin
 										  in7 => ir_out(7 downto 7),
 										  sel => counter_out,	-- Point of debugging
 										  output => one_bit_ctrl(0 downto 0));
+										  
+	counter_overFlow <= counter_out(0) and counter_out(1) and counter_out(2);
+	
+	cntr_out_16bit <= (0 => one_bit_ctrl(0), others => '0');
 end;

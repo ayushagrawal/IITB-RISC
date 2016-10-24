@@ -182,6 +182,7 @@ package combinedComponents is
 		  counter_clr: in std_logic;
 		  r7_select : in std_logic;
 		  counter_enable: in std_logic;
+	     sign_ext_ctrl : in std_logic;
 		  wren: 	in std_logic;
 		  rden: in std_logic;
 		  ir_ctrl: 	in std_logic;
@@ -202,9 +203,13 @@ package combinedComponents is
 		  reset: 	in std_logic;
 		  ir_toFSM: 	out std_logic_vector(3 downto 0);
 		  clock: 	in std_logic;
-		  carry: 	out std_logic;						-- To the FSM
+		  carry: 	out std_logic;						-- To the FSM -
 		  zero: 	out std_logic;						-- To the FSM
-		  add_signal : in std_logic);						-- To the FSM -> error signal from priority encoder
+		  add_signal : in std_logic;
+		  lst_two_op : out std_logic_vector(1 downto 0);
+		  mem_clock : in std_logic;
+		  counter_overFlow 	: out std_logic;
+		  mc_ctrl				: in std_logic);						-- To the FSM -> error signal from priority encoder
 	end component;
 	component fsm_controller is 
  	port (
@@ -237,7 +242,19 @@ package combinedComponents is
 		  mem_data_in_mux_ctrl			:out std_logic;
 		  R7_select				: out std_logic;
 		  counter_enable			: out std_logic;
-		  counter_clr			: out std_logic);
+		  counter_clr			: out std_logic;
+		  sign_ext_ctrl		: out std_logic;
+		  lst_two_op : in std_logic_vector(1 downto 0);
+		  counter_overFlow 	: in std_logic;
+		  mc_ctrl				: out std_logic);
+	end component;
+	
+	component CLOCK_DIVIDER is
+		 port(
+			  reset   :   in std_logic;
+			  clk :   in std_logic;
+			  half_clk    :   out std_logic
+			  );
 	end component;
 	
 end combinedComponents;
