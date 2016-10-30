@@ -1,0 +1,5 @@
+
+
+C:/Users/Ayush Agrawal/Desktop/Gate Level Micro Proj1/memory.vhd
+
+Oct 30 04AM:02:47>: File C:/Users/Ayush Agrawal/Desktop/Gate Level Micro Proj1/memory_syn.v could not be opened
